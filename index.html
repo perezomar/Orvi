@@ -96,6 +96,21 @@ input[type=checkbox]{width:auto}
 .quest{padding:12px;border-radius:14px;background:var(--soft)}
 .tm{font-size:56px;font-weight:900;letter-spacing:1px}
 .hd{display:flex;align-items:center;gap:8px}.hd svg{color:var(--acc)}
+.syncdot{width:9px;height:9px;border-radius:50%;background:var(--line);display:none;margin-left:2px}
+.syncdot[data-state=synced]{display:inline-block;background:var(--ok)}
+.syncdot[data-state=syncing]{display:inline-block;background:var(--warn)}
+.syncdot[data-state=offline]{display:inline-block;background:var(--mute)}
+.syncdot[data-state=error]{display:inline-block;background:var(--bad)}
+.gate{position:fixed;inset:0;z-index:90;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.gate.open{display:flex}
+.gate .box{width:100%;max-width:400px}
+.gmsg{font-size:13px;margin-top:10px;min-height:18px}
+.gmsg.err{color:var(--bad)}.gmsg.ok{color:var(--ok)}
+.whobtn{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:14px;background:var(--soft);font-weight:800;text-align:left;color:var(--ink)}
+.whobtn.sm{width:auto;max-width:150px;padding:5px 10px;gap:6px;font-size:13px;border-radius:12px}
+.whobtn .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whobtn small{display:block;font-size:11px;color:var(--mute);font-weight:700}
+.linkbtn{color:var(--acc);font-weight:800;font-size:13px;text-decoration:underline}
 </style>
 </head>
 <body>
@@ -103,8 +118,8 @@ input[type=checkbox]{width:auto}
 
 <div class="app">
   <aside class="side">
-    <div class="logo" style="margin-bottom:18px"><span class="mk"><i data-i="paw" data-s="20"></i></span><span class="brand"></span></div>
-    <select class="profSel" onchange="switchProfile(this.value)" aria-label="Profile" style="margin-bottom:10px"></select>
+    <div class="logo" style="margin-bottom:18px"><span class="mk"><i data-i="paw" data-s="20"></i></span><span class="brand"></span><span class="syncdot" data-sync title="Saved on this device"></span></div>
+    <button class="whobtn" id="whoSide" onclick="openWho()" aria-label="Switch person" style="margin-bottom:10px"></button>
     <div id="sideNav"></div>
     <div style="flex:1"></div>
     <button class="btn" onclick="openSheet('settingsSheet')"><i data-i="gear" data-s="18"></i>Settings</button>
@@ -113,8 +128,8 @@ input[type=checkbox]{width:auto}
 
   <main class="main">
     <div class="topbar-m">
-      <div class="logo"><span class="mk"><i data-i="paw" data-s="20"></i></span><span class="brand"></span></div>
-      <button class="btn sm" onclick="openSheet('settingsSheet')" aria-label="Settings"><i data-i="gear" data-s="18"></i></button>
+      <div class="logo"><span class="mk"><i data-i="paw" data-s="20"></i></span><span class="brand"></span><span class="syncdot" data-sync title="Saved on this device"></span></div>
+      <div class="row" style="gap:8px"><button class="whobtn sm" id="whoTop" onclick="openWho()" aria-label="Switch person"></button><button class="btn sm" onclick="openSheet('settingsSheet')" aria-label="Settings"><i data-i="gear" data-s="18"></i></button></div>
     </div>
 
     <!-- HOME -->
@@ -263,18 +278,61 @@ input[type=checkbox]{width:auto}
   <div class="flash" id="flash" onclick="flipCard()" style="margin:12px 0" role="button" tabindex="0"></div>
   <div class="row between"><button class="btn sm" onclick="stepCard(-1)">Prev</button><span class="sub" id="cCount"></span><button class="btn p sm" onclick="stepCard(1)">Next +5 XP</button></div></div></div>
 
-<div class="sheet" id="briefSheet"><div class="panel"><div class="grab"></div><h2>Daily briefing</h2><div id="briefBody" class="stack" style="margin-top:12px"></div>
+<div class="sheet" id="briefSheet"><div class="panel"><div class="grab"></div><h2 id="briefTitle">Daily briefing</h2><div id="briefBody" class="stack" style="margin-top:12px"></div>
   <div class="row between" style="margin-top:16px"><button class="btn sm" id="notifBtn" onclick="enableNotif()">Enable reminders</button><button class="btn p" onclick="closeSheet('briefSheet')">Let's go</button></div></div></div>
 
 <div class="sheet" id="settingsSheet"><div class="panel"><div class="grab"></div><h2>Settings</h2>
-  <label for="setProf">Profile</label><select id="setProf" class="profSel" onchange="switchProfile(this.value)"></select>
+  <label for="setProf">Person</label><select id="setProf" class="profSel" onchange="switchProfile(this.value)"></select>
+  <div class="row wrap" style="margin-top:8px"><button class="btn sm" onclick="closeSheet('settingsSheet');openPerson(DB.current)">Edit name or level</button><button class="btn sm" onclick="closeSheet('settingsSheet');openPerson()">Add a person</button></div>
+  <div id="removedBox" class="stack" style="margin-top:8px"></div>
   <label for="setVibe">Companion style</label><select id="setVibe" onchange="setVibe(this.value)"><option value="playful">Playful: animation, confetti, chatty</option><option value="calm">Calm: quiet, minimal effects</option></select>
   <label for="setTheme">Theme</label><select id="setTheme" onchange="setTheme(this.value)"><option value="auto">Match device</option><option value="light">Light</option><option value="dark">Dark</option></select>
+  <label>Account and sync</label>
+  <div id="acctBox" class="quest stack"></div>
   <label>Your data</label>
   <div class="row wrap"><button class="btn sm" onclick="exportData()"><i data-i="download" data-s="14"></i>Export backup</button><label class="btn sm" style="margin:0;cursor:pointer"><i data-i="upload" data-s="14"></i>Import backup<input type="file" accept=".json,application/json" style="display:none" onchange="importData(this)"></label></div>
   <div class="row wrap" style="margin-top:10px"><button class="btn sm" onclick="clearSample()">Clear sample tasks</button><button class="btn sm" onclick="resetProfile()" style="color:var(--bad)">Reset this profile</button></div>
-  <p class="sub" style="margin-top:12px">Progress, companions and purchases are saved on this device with an automatic backup copy. Export a backup now and then; cloud sync arrives with accounts.</p>
+  <p class="sub" style="margin-top:12px">Progress, companions and purchases are always saved on this device first, with an automatic backup copy. Signed-in accounts also sync to the cloud. Export a backup now and then for extra safety.</p>
   <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn p" onclick="closeSheet('settingsSheet')">Done</button></div></div></div>
+
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gTitle"><div class="box">
+  <div style="text-align:center;margin-bottom:18px"><span class="tile" style="background:linear-gradient(135deg,var(--acc),#a78bfa);width:64px;height:64px;border-radius:20px;display:inline-grid"><i data-i="paw" data-s="34"></i></span>
+    <h2 id="gTitle" style="margin-top:12px;font-size:26px">Welcome to <span class="brand"></span></h2><p class="sub">Sign in to keep your progress safe and in sync on every device.</p></div>
+  <div class="card">
+    <div class="tabs" style="margin-bottom:6px"><button id="gTabIn" class="on" onclick="setGateMode('in')" style="flex:1">Sign in</button><button id="gTabUp" onclick="setGateMode('up')" style="flex:1">Create account</button></div>
+    <form onsubmit="submitAuth(event)">
+      <label for="gEmail">Email</label><input id="gEmail" type="email" autocomplete="email" required>
+      <label for="gPass">Password</label><input id="gPass" type="password" autocomplete="current-password" minlength="8" required>
+      <div class="gmsg" id="gMsg" aria-live="polite"></div>
+      <button class="btn p" id="gGo" style="width:100%;margin-top:6px">Sign in</button>
+    </form>
+    <div class="row between" style="margin-top:12px"><button class="linkbtn" onclick="forgotPassword()">Forgot password?</button><button class="linkbtn" onclick="skipSignIn()">Use without an account</button></div>
+  </div>
+  <p class="sub" style="text-align:center;margin-top:12px">Without an account your progress stays on this device only.</p>
+</div></div>
+
+<div class="sheet" id="recoverSheet"><div class="panel"><div class="grab"></div><h2>Choose a new password</h2>
+  <form onsubmit="setNewPassword(event)"><label for="rPass">New password (8+ characters)</label><input id="rPass" type="password" minlength="8" autocomplete="new-password" required>
+  <div class="row" style="margin-top:18px;justify-content:flex-end"><button type="button" class="btn" onclick="closeSheet('recoverSheet')">Cancel</button><button class="btn p">Save password</button></div></form></div></div>
+
+<div class="sheet" id="histSheet"><div class="panel"><div class="grab"></div><h2>Version history</h2><p class="sub" style="margin:6px 0 10px">Automatic snapshots of this profile. Restoring one replaces what you have now, and your current version is saved first.</p><div id="histList" class="stack"></div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" onclick="closeSheet('histSheet')">Close</button></div></div></div>
+
+<div class="sheet" id="whoSheet"><div class="panel"><div class="grab"></div><h2>Who's studying?</h2><div id="whoList" class="stack" style="margin-top:12px"></div>
+  <button class="btn p" style="width:100%;margin-top:14px" onclick="closeSheet('whoSheet');openPerson()"><i data-i="plus" data-s="14"></i>Add a person</button></div></div>
+
+<div class="sheet" id="unsubSheet" style="z-index:95"><div class="panel"><div class="grab"></div><h2>Stop briefing emails?</h2><p class="sub" style="margin-top:8px">You will no longer get the morning and evening emails. You can turn them back on any time in Settings.</p>
+  <div class="row between" style="margin-top:18px"><button class="btn" onclick="closeSheet('unsubSheet')">Keep them</button><button class="btn p" onclick="cloudUnsub()">Stop emails</button></div></div></div>
+
+<div class="sheet" id="personSheet"><div class="panel"><div class="grab"></div><h2 id="pTitle">Add a person</h2>
+  <form onsubmit="savePerson(event)"><input type="hidden" id="pKey">
+    <label for="pName">Name</label><input id="pName" maxlength="24" placeholder="e.g. Omar, Sofia" required autocomplete="off">
+    <label for="pLevel">Level</label><select id="pLevel"><option value="college">College</option><option value="highschool">High school</option><option value="middleschool">Middle school</option></select>
+    <label class="row" id="pSampleRow" style="margin-top:14px;font-size:13px"><input type="checkbox" id="pSample"> Start with sample courses and tasks</label>
+    <div class="row between" style="margin-top:18px"><button type="button" class="btn" id="pRemove" style="color:var(--bad)" onclick="removePerson()">Remove</button><div class="row"><button type="button" class="btn" onclick="closeSheet('personSheet')">Cancel</button><button class="btn p">Save</button></div></div>
+  </form></div></div>
+
+<script src="config.js"></script>
 
 <script>
 const APP_NAME = 'Orvi';
@@ -329,7 +387,8 @@ const IC = {
   chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   list:'<path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/>',
   cards:'<rect x="3" y="7" width="14" height="12" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>',
-  bag:'<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'
+  bag:'<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  chevron:'<path d="M6 9l6 6 6-6"/>'
 };
 function ico(n, s = 18) { return `<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n] || ''}</svg>`; }
 function hydrateIcons(root = document) { root.querySelectorAll('[data-i]').forEach(e => { e.outerHTML = ico(e.dataset.i, +e.dataset.s || 18); }); }
@@ -392,43 +451,52 @@ function avatar(id, mood, acc, size) {
 
 /* ---------- Storage: crash-safe, with automatic backup copy ---------- */
 const KEY = 'orvi.v1', LEGACY = ['pounce.v1', 'cadenza.v1'];
-const PROFILES = { college:{label:'College'}, highschool:{label:'High school'}, middleschool:{label:'Middle school'} };
+const LEVELS = { college:'College', highschool:'High school', middleschool:'Middle school' };
+const levelOf = k => { const p = DB.profiles[k]; return (p && LEVELS[p.level]) ? p.level : (LEVELS[k] ? k : 'college'); };
+const personName = k => (DB.profiles[k] && DB.profiles[k].name) || LEVELS[levelOf(k)];
+const profLabel = k => (DB.profiles[k] && DB.profiles[k].name) ? `${DB.profiles[k].name} · ${LEVELS[levelOf(k)]}` : LEVELS[levelOf(k)];
+const activeKeys = () => Object.keys(DB.profiles).filter(k => !DB.profiles[k].archived);
 const PALETTE = ['#6c5ce7','#ff8a4c','#10b981','#ec4899','#0ea5e9','#f59e0b'];
-function seed(key) {
+function seed(level, name, withSample) {
+  if (withSample === undefined) withSample = true;
   const t = todayStr();
   const S = {
     college:{ courses:[['Strategic Entrepreneurship','MBA 553','Prof. Harrison'],['Corporate Finance','FIN 520','Prof. Miller'],['Data Analytics','ACC 505','Prof. Davis']], tasks:[['Module 7 theory analysis',0,'assignment',1,60,'high'],['Valuation problem set #3',1,'assignment',2,90,'urgent'],['Read ch. 4: Regression',2,'reading',3,45,'medium'],['Lecture: Business models',0,'video',4,30,'low'],['Quiz: Capital structure',1,'quiz',5,30,'medium'],['Midterm review',1,'test',6,120,'high']], exam:['Corporate Finance midterm',11], events:[['Strategic Entrepreneurship',[0,2],'09:00','10:30','Zoom'],['Corporate Finance',[1,3],'09:00','10:30','Zoom']], vibe:'calm' },
     highschool:{ courses:[['AP Calculus BC','MATH 401','Mr. Vance'],['AP Physics C','SCI 302','Dr. Sterling'],['AP English Lit','ENG 410','Ms. Ortiz']], tasks:[['Series convergence worksheet',0,'assignment',1,50,'high'],['Lab report: Torque',1,'assignment',3,75,'medium'],['Read Act 3',2,'reading',2,40,'medium'],['Unit 8 quiz',0,'quiz',4,30,'high'],['Watch: Rotational motion',1,'video',3,25,'low']], exam:['AP Calc Unit 8 test',9], events:[['AP Calculus',[0,1,2,3,4],'08:30','09:20','Rm 214'],['AP Physics',[0,2,4],'10:00','10:50','Lab B'],['Practice / club',[1,3],'15:30','17:00','Gym']], vibe:'playful' },
     middleschool:{ courses:[['Life Science','SCI 8','Ms. Gable'],['Algebra 1','MATH 8','Mr. Ross'],['Language Arts','ELA 8','Ms. Kim']], tasks:[['Cell diagram labeling',0,'assignment',1,30,'medium'],['Algebra practice p.112',1,'assignment',2,30,'high'],['Read chapter 5',2,'reading',3,25,'low'],['Vocab quiz',2,'quiz',4,20,'medium'],['Watch: Cell division',0,'video',3,15,'low']], exam:['Algebra unit test',7], events:[['Algebra',[0,1,2,3,4],'09:00','09:50','Rm 12'],['Life Science',[1,3],'11:00','11:50','Rm 8']], vibe:'playful' }
-  }[key];
-  const courses = S.courses.map(([name,code,instructor]) => ({id:uid(), name, code, instructor}));
+  }[level];
+  if (!withSample) { S.courses = []; S.tasks = []; S.events = []; S.exam = null; }
+  const courses = S.courses.map(([name,code,instructor]) => ({id:uid(), name, code, instructor, seed:true}));
   return normalize({
     courses,
-    tasks:S.tasks.map(([title,ci,taskType,off,duration,priority]) => ({id:uid(), courseId:courses[ci].id, title, taskType, dueDate:addDays(t,off), duration, priority, status:'pending', actualMins:0, completedAt:null})),
-    exams:[{id:uid(), title:S.exam[0], date:addDays(t,S.exam[1])}],
-    events:S.events.map(([title,days,start,end,loc]) => ({id:uid(), title, days, start, end, loc})),
-    coins:30, vibe:S.vibe
+    tasks:S.tasks.map(([title,ci,taskType,off,duration,priority]) => ({id:uid(), courseId:courses[ci].id, title, taskType, dueDate:addDays(t,off), duration, priority, status:'pending', actualMins:0, completedAt:null, seed:true})),
+    exams:S.exam ? [{id:uid(), title:S.exam[0], date:addDays(t,S.exam[1]), seed:true}] : [],
+    events:S.events.map(([title,days,start,end,loc]) => ({id:uid(), title, days, start, end, loc, seed:true})),
+    coins:30, vibe:S.vibe, level, name:name||''
   });
 }
 // Fills in anything missing so new features or companions never wipe existing progress.
 function normalize(p) {
-  const D = {courses:[],tasks:[],exams:[],events:[],xp:0,coins:0,activeDays:[],freezes:0,freezeUsed:[],bestStreak:0,focusLog:[],completedTotal:0,scans:0,unlocked:[],xpLog:{},cards:'',lastBrief:'',notifSent:'',claimed:{},vibe:'playful'};
+  const D = {name:'',level:'',archived:false,metaAt:0,deleted:{},courses:[],tasks:[],exams:[],events:[],xp:0,coins:0,activeDays:[],freezes:0,freezeUsed:[],bestStreak:0,focusLog:[],completedTotal:0,scans:0,unlocked:[],xpLog:{},cards:'',lastBrief:'',notifSent:'',claimed:{},vibe:'playful'};
   Object.keys(D).forEach(k => { if (p[k] === undefined || p[k] === null) p[k] = JSON.parse(JSON.stringify(D[k])); });
   p.comp = Object.assign({species:'dog', name:'Biscuit', species_unlocked:['dog'], owned:[], equipped:''}, p.comp || {});
   if (!Array.isArray(p.comp.species_unlocked)) p.comp.species_unlocked = ['dog'];
   if (!p.comp.species_unlocked.includes('dog')) p.comp.species_unlocked.push('dog');
+  const seenF = {}; p.focusLog.forEach(f => { if (!f.id) { const b = `${f.date}|${f.mins}|${f.taskId||''}`; seenF[b] = (seenF[b]||0)+1; f.id = b + '|' + seenF[b]; } });
   if (!Array.isArray(p.comp.owned)) p.comp.owned = [];
   if (!COMPANIONS[p.comp.species]) p.comp.species = 'dog';
   return p;
 }
 function readKey(k) { try { const r = localStorage.getItem(k); if (!r) return null; const o = JSON.parse(r); return o && o.profiles && typeof o.profiles === 'object' ? o : null; } catch (e) { return null; } }
+function freshDB() { const d = {v:1, current:'college', theme:'auto', profiles:{}}; d.profiles.college = seed('college'); return d; }
+function tomb(id) { P().deleted[id] = Date.now(); }
 function loadDB() {
   let db = readKey(KEY), note = '';
   if (!db) { db = readKey(KEY + '.bak'); if (db) note = 'Restored your progress from the automatic backup.'; }
   if (!db) { for (const k of LEGACY) { const old = readKey(k); if (old) { db = old; note = 'Imported your earlier progress.'; break; } } }
   if (!db) { db = {v:1, current:'college', theme:'auto', profiles:{}}; db.profiles.college = seed('college'); }
-  if (!PROFILES[db.current] || !db.profiles[db.current]) db.current = Object.keys(db.profiles)[0] || 'college';
-  if (!db.profiles[db.current]) db.profiles[db.current] = seed(db.current);
+  if (!db.profiles[db.current] || db.profiles[db.current].archived) { const ok = Object.keys(db.profiles).find(k => !db.profiles[k].archived); db.current = ok || Object.keys(db.profiles)[0] || 'college'; }
+  if (!db.profiles[db.current]) db.profiles[db.current] = seed(LEVELS[db.current] ? db.current : 'college');
   Object.keys(db.profiles).forEach(k => normalize(db.profiles[k]));
   db.theme = db.theme || 'auto';
   if (note) setTimeout(() => toast(note), 600);
@@ -441,6 +509,7 @@ function saveNow() {
     if (cur && readKey(KEY)) localStorage.setItem(KEY + '.bak', cur); // previous good state becomes the backup
     DB.savedAt = Date.now();
     localStorage.setItem(KEY, JSON.stringify(DB));
+    try { if (window.cloudNotify) window.cloudNotify(); } catch (e) {}
     return true;
   } catch (e) { return false; }
 }
@@ -539,7 +608,7 @@ function toggleTask(id) {
   } else { t.status = 'pending'; t.completedAt = null; P().completedTotal = Math.max(0, P().completedTotal-1); P().xp = Math.max(0, P().xp - 30); P().coins = Math.max(0, P().coins - 12); }
   checkProgress(); save(); renderAll();
 }
-function deleteTask(id) { if (confirm('Delete this task?')) { P().tasks = P().tasks.filter(t => t.id !== id); save(); renderAll(); } }
+function deleteTask(id) { if (confirm('Delete this task?')) { tomb(id); P().tasks = P().tasks.filter(t => t.id !== id); save(); renderAll(); } }
 function taskHTML(t) {
   const c = courseOf(t.courseId), done = t.status === 'completed', t0 = todayStr(), late = !done && t.dueDate < t0;
   const when = late ? `<b style="color:var(--bad)">Overdue ${daysBetween(t.dueDate,t0)}d</b>` : t.dueDate === t0 ? '<b style="color:var(--warn)">Due today</b>' : fmtDate(t.dueDate);
@@ -557,7 +626,8 @@ let tab = 'home', taskFilter = 'week', selDay = todayStr();
 const NAV = [['home','home','Home'],['plan','calendar','Plan'],['courses','book','Courses'],['focus','timer','Focus'],['buddy','paw','Buddy']];
 function buildChrome() {
   document.title = APP_NAME; document.querySelectorAll('.brand').forEach(e => e.textContent = APP_NAME);
-  const opts = Object.entries(PROFILES).map(([k,v]) => `<option value="${k}">${v.label}</option>`).join('');
+  if (!DB.profiles[DB.current] || DB.profiles[DB.current].archived) DB.current = activeKeys()[0] || DB.current;
+  const opts = activeKeys().map(k => `<option value="${k}">${esc(profLabel(k))}</option>`).join('');
   document.querySelectorAll('.profSel').forEach(s => { s.innerHTML = opts; s.value = DB.current; });
   $('sideNav').innerHTML = NAV.map(([id,i,l]) => `<button class="navb" data-t="${id}" onclick="go('${id}')">${ico(i,20)}${l}</button>`).join('');
   $('bottomNav').innerHTML = NAV.map(([id,i,l]) => `<button data-t="${id}" onclick="go('${id}')"><span class="pill">${ico(i,22)}</span>${l}</button>`).join('');
@@ -568,7 +638,7 @@ function buildChrome() {
 function applyTheme() { const dark = DB.theme === 'dark' || (DB.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); document.documentElement.dataset.theme = dark ? 'dark' : 'light'; document.body.classList.toggle('calm', P().vibe === 'calm'); }
 function go(t) { tab = t; ['home','plan','courses','focus','buddy'].forEach(x => $('v-'+x).hidden = x !== t);
   document.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t)); window.scrollTo({top:0}); }
-function renderAll() { autoFreeze(); renderHome(); renderPlan(); renderCourses(); renderFocus(); renderBuddy(); }
+function renderAll() { autoFreeze(); renderHome(); renderPlan(); renderCourses(); renderFocus(); renderBuddy(); renderWho(); }
 
 function renderHome() {
   const p = P(), li = levelInfo(), c = comp();
@@ -649,20 +719,20 @@ function shopAct(k) { const c = comp(), p = P();
   if (transact(() => { p.coins -= SHOP[k].c; c.owned.push(k); c.equipped = k; })) { burst(40); toast(`${SHOP[k].n} added to your collection.`); renderAll(); } }
 
 /* ---------- Sheets & forms ---------- */
-function openSheet(id) { if (id === 'cardsSheet') { $('cardsText').value = P().cards; ci = 0; fl = false; showCard(); } $(id).classList.add('open'); }
+function openSheet(id) { if (id === 'settingsSheet') renderRemoved(); if (id === 'cardsSheet') { $('cardsText').value = P().cards; ci = 0; fl = false; showCard(); } $(id).classList.add('open'); }
 function closeSheet(id) { $(id).classList.remove('open'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.sheet.open').forEach(s => s.classList.remove('open')); });
 document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if (e.target === s) s.classList.remove('open'); }));
 function openTask(cid) { if (!P().courses.length) { toast('Add a course first.'); return openSheet('courseSheet'); } $('tCourse').innerHTML = P().courses.map(c => `<option value="${c.id}">${esc(c.code||'')} ${esc(c.name)}</option>`).join(''); if (cid) $('tCourse').value = cid; $('tDue').value = $('tDue').value || addDays(todayStr(),1); openSheet('taskSheet'); }
 function saveTask(e) { e.preventDefault(); addTask({title:$('tTitle').value.trim(), courseId:$('tCourse').value, taskType:$('tType').value, dueDate:$('tDue').value, duration:parseInt($('tDur').value)||45, priority:$('tPri').value}); addXp(5,0); e.target.reset(); closeSheet('taskSheet'); save(); renderAll(); toast('Task added.'); }
 function saveCourse(e) { e.preventDefault(); P().courses.push({id:uid(), name:$('cName').value.trim(), code:$('cCode').value.trim(), instructor:$('cInst').value.trim()}); e.target.reset(); closeSheet('courseSheet'); save(); renderAll(); }
-function delCourse(id) { const n = P().tasks.filter(t => t.courseId === id).length; if (!confirm(n ? `Remove this course and its ${n} task(s)?` : 'Remove this course?')) return; P().courses = P().courses.filter(c => c.id !== id); P().tasks = P().tasks.filter(t => t.courseId !== id); save(); renderAll(); }
+function delCourse(id) { const n = P().tasks.filter(t => t.courseId === id).length; if (!confirm(n ? `Remove this course and its ${n} task(s)?` : 'Remove this course?')) return; tomb(id); P().tasks.filter(t => t.courseId === id).forEach(t => tomb(t.id)); P().courses = P().courses.filter(c => c.id !== id); P().tasks = P().tasks.filter(t => t.courseId !== id); save(); renderAll(); }
 function saveExam(e) { e.preventDefault(); P().exams.push({id:uid(), title:$('eTitle').value.trim(), date:$('eDate').value}); e.target.reset(); closeSheet('examSheet'); save(); renderAll(); }
-function delExam(id) { P().exams = P().exams.filter(x => x.id !== id); save(); renderAll(); }
+function delExam(id) { tomb(id); P().exams = P().exams.filter(x => x.id !== id); save(); renderAll(); }
 function saveEvent(e) { e.preventDefault(); const days = [...document.querySelectorAll('.vd:checked')].map(c => +c.value);
   if (!days.length) return toast('Pick at least one day.'); if ($('vE').value <= $('vS').value) return toast('End must be after start.');
   P().events.push({id:uid(), title:$('vTitle').value.trim(), days, start:$('vS').value, end:$('vE').value, loc:$('vL').value.trim()}); e.target.reset(); closeSheet('eventSheet'); save(); renderAll(); }
-function delEvent(id) { P().events = P().events.filter(x => x.id !== id); save(); renderAll(); }
+function delEvent(id) { tomb(id); P().events = P().events.filter(x => x.id !== id); save(); renderAll(); }
 
 /* ---------- Import ---------- */
 function readInto(inp, id) { const f = inp.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => $(id).value = r.result; r.readAsText(f); }
@@ -718,7 +788,7 @@ setInterval(() => { if (!T.run) return; drawTimer(); if (Date.now() >= T.end) fi
 function finishSession() {
   const wasFocus = T.mode === 'pomodoro', mins = Math.round(T.total/60); T.run = false; T.left = 0;
   if (wasFocus) { const task = P().tasks.find(t => t.id === $('tLink').value); if (task) task.actualMins += mins;
-    P().focusLog.push({date:todayStr(), mins, taskId:task?task.id:null}); addXp(50, 25); markActive(); checkProgress(); burst(100); toast(`Focus session done: +50 XP${task?` · ${mins}m logged`:''}`); notify('Focus session complete', 'Take a short break.');
+    P().focusLog.push({id:uid(), date:todayStr(), mins, taskId:task?task.id:null}); addXp(50, 25); markActive(); checkProgress(); burst(100); toast(`Focus session done: +50 XP${task?` · ${mins}m logged`:''}`); notify('Focus session complete', 'Take a short break.');
   } else { toast('Break over. Ready for another round?'); notify('Break over', 'Time to focus.'); }
   save(); renderAll(); setMode(wasFocus ? 'short' : 'pomodoro');
 }
@@ -733,6 +803,7 @@ function stepCard(d) { const n = cards().length; if (!n) return; ci = (ci+d+n)%n
 
 /* ---------- Briefing, notifications, settings ---------- */
 function showBrief() {
+  $('briefTitle').textContent = activeKeys().length > 1 ? 'Daily briefing for ' + personName(DB.current) : 'Daily briefing';
   const p = P(), t0 = todayStr(), morning = new Date().getHours() < 14, done = p.tasks.filter(t => t.completedAt === t0).length, mins = p.focusLog.filter(f => f.date === t0).reduce((a,f) => a+f.mins, 0);
   const todays = p.tasks.filter(t => t.status!=='completed' && t.dueDate <= t0), tom = p.tasks.filter(t => t.status!=='completed' && t.dueDate === addDays(t0,1)), n = sortedPending()[0];
   const list = a => a.length ? a.map(t => '• ' + esc(t.title)).join('<br>') : 'Nothing due.';
@@ -744,20 +815,70 @@ function showBrief() {
 }
 function enableNotif() { if (!('Notification' in window)) return toast('Not supported on this browser.'); Notification.requestPermission().then(r => { toast(r === 'granted' ? 'Reminders enabled.' : 'Permission not granted.'); $('notifBtn').style.display = 'none'; }); }
 function notify(t, b) { try { if ('Notification' in window && Notification.permission === 'granted') new Notification(t, {body:b}); } catch(e){} }
-function switchProfile(k) { if (!DB.profiles[k]) DB.profiles[k] = seed(k); DB.current = k; pauseTimer(); save(); buildChrome(); renderAll(); }
+function switchProfile(k) { if (!DB.profiles[k] || DB.profiles[k].archived) return; DB.current = k; pauseTimer(); save(); buildChrome(); renderAll(); }
 function setVibe(v) { P().vibe = v; save(); applyTheme(); renderAll(); }
 function setTheme(v) { DB.theme = v; save(); applyTheme(); }
 function exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'})); a.download = `${APP_NAME.toLowerCase()}-backup-${todayStr()}.json`; a.click(); toast('Backup downloaded.'); }
 function importData(inp) {
   const f = inp.files[0]; if (!f) return; const r = new FileReader();
   r.onload = () => { try { const o = JSON.parse(r.result); if (!o || !o.profiles) throw 0; if (!confirm('Replace current progress with this backup?')) return;
-    const prev = JSON.stringify(DB); DB = o; Object.keys(DB.profiles).forEach(k => normalize(DB.profiles[k])); if (!PROFILES[DB.current] || !DB.profiles[DB.current]) DB.current = Object.keys(DB.profiles)[0];
+    const prev = JSON.stringify(DB), pv = JSON.parse(prev); DB = o; DB.owner = pv.owner; DB.localOnly = pv.localOnly; if (DB.owner === undefined) delete DB.owner; if (DB.localOnly === undefined) delete DB.localOnly; Object.keys(DB.profiles).forEach(k => normalize(DB.profiles[k])); if (!DB.profiles[DB.current] || DB.profiles[DB.current].archived) DB.current = Object.keys(DB.profiles).find(k => !DB.profiles[k].archived) || Object.keys(DB.profiles)[0];
     if (!saveNow()) { DB = JSON.parse(prev); return toast("Couldn't save the backup. Nothing changed."); }
-    buildChrome(); renderAll(); toast('Backup restored.'); } catch (e) { toast("That file isn't a valid backup."); } };
+    if (window.cloudForce) window.cloudForce(Object.keys(DB.profiles)); buildChrome(); renderAll(); toast('Backup restored.'); } catch (e) { toast("That file isn't a valid backup."); } };
   r.readAsText(f); inp.value = '';
 }
-function clearSample() { if (!confirm('Remove the sample courses, tasks, exams and classes? XP, coins and companions are kept.')) return; const p = P(); p.courses = []; p.tasks = []; p.exams = []; p.events = []; save(); renderAll(); closeSheet('settingsSheet'); toast('Sample data cleared. Add your first course to begin.'); }
-function resetProfile() { if (!confirm('Reset this profile completely? XP, coins and companions will be erased. Export a backup first if unsure.')) return; DB.profiles[DB.current] = seed(DB.current); save(); buildChrome(); renderAll(); closeSheet('settingsSheet'); }
+function clearSample() { if (!confirm('Remove the sample courses, tasks, exams and classes? XP, coins and companions are kept.')) return; const p = P(); [...p.courses, ...p.tasks, ...p.exams, ...p.events].forEach(x => tomb(x.id)); p.courses = []; p.tasks = []; p.exams = []; p.events = []; save(); renderAll(); closeSheet('settingsSheet'); toast('Sample data cleared. Add your first course to begin.'); }
+function resetProfile() { if (!confirm('Reset this profile completely? XP, coins and companions will be erased. Export a backup first if unsure.')) return; { const old = DB.profiles[DB.current]; DB.profiles[DB.current] = seed(levelOf(DB.current), old.name, true); DB.profiles[DB.current].metaAt = Date.now(); } save(); if (window.cloudForce) window.cloudForce([DB.current]); buildChrome(); renderAll(); closeSheet('settingsSheet'); }
+
+/* ---------- People (named profiles) ---------- */
+function renderWho() {
+  const k = DB.current, p = DB.profiles[k]; if (!p) return;
+  const c = p.comp, nm = esc(personName(k)), lv = esc(LEVELS[levelOf(k)]);
+  const side = $('whoSide'), top = $('whoTop');
+  if (side) side.innerHTML = `${avatar(c.species, 'calm', c.equipped, 32)}<span class="nm">${nm}<small>${lv}</small></span>${ico('chevron', 14)}`;
+  if (top) top.innerHTML = `${avatar(c.species, 'calm', c.equipped, 24)}<span class="nm">${nm}</span>${ico('chevron', 12)}`;
+}
+function openWho() {
+  $('whoList').innerHTML = activeKeys().map(k => { const p = DB.profiles[k], lv = Math.floor((p.xp||0) / LEVEL_XP) + 1;
+    return `<div class="opt" style="padding:12px;cursor:pointer;${k === DB.current ? 'outline:2px solid var(--acc)' : ''}" onclick="pickPerson('${k}')" role="button" tabindex="0"><span style="flex:none">${avatar(p.comp.species, 'calm', p.comp.equipped, 48)}</span><div style="flex:1;min-width:0"><h3>${esc(personName(k))}</h3><p class="sub">${esc(LEVELS[levelOf(k)])} · Lv ${lv}</p></div><button class="btn sm" onclick="event.stopPropagation();closeSheet('whoSheet');openPerson('${k}')" aria-label="Edit ${esc(personName(k))}">${ico('assignment', 14)}</button></div>`; }).join('');
+  openSheet('whoSheet');
+}
+function pickPerson(k) { switchProfile(k); closeSheet('whoSheet'); }
+function openPerson(key) {
+  const editing = !!key && !!DB.profiles[key];
+  $('pTitle').textContent = editing ? 'Edit person' : 'Add a person';
+  $('pKey').value = editing ? key : '';
+  $('pName').value = editing ? (DB.profiles[key].name || '') : '';
+  $('pLevel').value = editing ? levelOf(key) : 'college';
+  $('pSample').checked = false; $('pSampleRow').style.display = editing ? 'none' : '';
+  $('pRemove').style.display = editing ? '' : 'none';
+  openSheet('personSheet'); setTimeout(() => { try { $('pName').focus(); } catch (e) {} }, 50);
+}
+function savePerson(e) {
+  e.preventDefault();
+  const name = $('pName').value.trim().slice(0, 24), level = $('pLevel').value, key = $('pKey').value;
+  if (!name) return toast('Please enter a name.');
+  if (key && DB.profiles[key]) { const p = DB.profiles[key]; p.name = name; p.level = level; p.metaAt = Date.now(); toast('Saved.'); }
+  else {
+    const nk = 'p_' + uid(); DB.profiles[nk] = seed(level, name, $('pSample').checked); DB.profiles[nk].metaAt = Date.now();
+    DB.current = nk; pauseTimer(); toast(`Added ${name}.`);
+  }
+  save(); closeSheet('personSheet'); buildChrome(); renderAll();
+}
+function removePerson() {
+  const key = $('pKey').value; if (!key || !DB.profiles[key]) return;
+  if (activeKeys().length <= 1) return toast('You need at least one person.');
+  if (!confirm(`Remove ${personName(key)}? Their progress is kept and you can restore them from Settings.`)) return;
+  const p = DB.profiles[key]; p.archived = true; p.metaAt = Date.now();
+  if (DB.current === key) { DB.current = activeKeys()[0]; pauseTimer(); }
+  save(); closeSheet('personSheet'); buildChrome(); renderAll(); toast('Removed. You can restore them in Settings.');
+}
+function restorePerson(k) { const p = DB.profiles[k]; if (!p) return; p.archived = false; p.metaAt = Date.now(); save(); buildChrome(); renderAll(); renderRemoved(); toast(`${personName(k)} is back.`); }
+function renderRemoved() {
+  const box = $('removedBox'); if (!box) return;
+  const gone = Object.keys(DB.profiles).filter(k => DB.profiles[k].archived);
+  box.innerHTML = gone.length ? `<div class="sub" style="font-weight:800">Removed people</div>` + gone.map(k => `<div class="quest row between"><span><b>${esc(personName(k))}</b> <span class="sub">${esc(LEVELS[levelOf(k)])}</span></span><button class="btn sm" onclick="restorePerson('${k}')">Restore</button></div>`).join('') : '';
+}
 
 /* ---------- Boot ---------- */
 hydrateIcons(); buildChrome(); go('home'); renderAll();
@@ -767,5 +888,6 @@ if (P().lastBrief !== todayStr()) setTimeout(showBrief, 700);
 (function(){ const p = P(), t0 = todayStr(); if (p.notifSent === t0) return; const n = p.tasks.filter(t => t.status!=='completed' && t.dueDate <= addDays(t0,1)).length; if (n && 'Notification' in window && Notification.permission === 'granted') { notify(APP_NAME, `${n} item${n>1?'s':''} due today or tomorrow.`); p.notifSent = t0; save(); } })();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
+<script src="cloud.js"></script>
 </body>
 </html>

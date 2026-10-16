@@ -9,6 +9,9 @@ Files in this folder (keep them together):
 | `index.html` | The whole app |
 | `manifest.json` | Tells phones how to install it (name, icon, colors) |
 | `sw.js` | Lets it open offline |
+| `cloud.js` | Accounts and cloud sync (does nothing until you add keys) |
+| `config.js` | Where you paste your Supabase keys (Part 7) |
+| `supabase/schema.sql` | The database setup, run once in Supabase (Part 7) |
 | `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` | App icons |
 
 ---
@@ -63,7 +66,7 @@ Open it from the new icon. It runs full screen like an app.
 ## Part 4: Using it well
 
 - **First run:** go to Settings, tap **Clear sample tasks**, then add your real courses. Use the **+** button to add tasks, import a calendar (.ics file) or paste a syllabus.
-- **Profiles:** College, High school and Middle school are separate. Each has its own tasks, XP, coins and companion.
+- **People:** each person has their own name, level (College, High school or Middle school), tasks, XP, coins and companion. Tap the name at the top (phone) or in the sidebar (desktop) to switch, or to **Add a person**. Two people can share a level. Use Settings, then **Edit name or level** to rename. **Remove** hides a person but keeps their progress; restore them under Settings, **Removed people**. With cloud sync on, names and removals follow you across devices.
 - **Reminders:** tap **Daily briefing**, then **Enable reminders**. Reminders only fire while the app is open. Reliable background notifications need the accounts build (see Part 6).
 
 ### Protect your progress (important)
@@ -117,6 +120,51 @@ Many people skip the stores at first and just share the web link. The installed 
 
 ---
 
+---
+
+## Part 7: Turn on accounts and cloud sync (Supabase, about 30 minutes)
+
+With this on, students sign in with email and password, and progress follows them between phone and computer. The app still works offline and still saves on the device first. If you skip this part, Orvi simply stays a local-only app.
+
+### 1. Create the project
+1. Go to supabase.com and sign up free. Click **New project**.
+2. Name it `orvi`. Choose a database password and **save it somewhere safe**. Pick the region closest to your users. Click **Create** and wait about 2 minutes.
+
+### 2. Create the database
+1. In the left menu click **SQL Editor**, then **New query**.
+2. Open `supabase/schema.sql` from this folder, copy ALL of it, paste it in, and click **Run**. You should see "Success".
+3. Click **Table Editor**. You should see `student_profiles` and `student_profile_history`, each marked **RLS enabled**. RLS is what stops one user from seeing another's data. Never turn it off.
+
+### 3. Set up sign-in
+1. Go to **Authentication, then Sign In / Providers** and make sure **Email** is on.
+2. Keep **Confirm email** ON for real use (students must click a link in their inbox once). For quick testing you can turn it off.
+3. Go to **Authentication, then URL Configuration**. Set **Site URL** to your live app link (for example `https://yourname.github.io/orvi/`). Add the same link under **Redirect URLs**. Password-reset and confirmation emails use this.
+
+### 4. Copy your two keys
+1. Go to **Project Settings, then API** (called **API Keys** in newer dashboards).
+2. Copy the **Project URL** and the **anon / publishable** key.
+3. **Never** use the `service_role` or `secret` key in this app. Anyone can read `config.js`.
+
+### 5. Add the keys and upload
+1. Open `config.js` in any text editor and paste the two values between the quotes. Save.
+2. Upload ALL the files to your GitHub repo again (replace the old ones), including `cloud.js`, `config.js` and `sw.js`.
+3. Wait a minute, then reload the app. Close and reopen it once if it still looks old.
+
+### 6. Test it (do this before real students use it)
+1. Open the app on your computer. You should see **Welcome to Orvi**. Create an account, confirm the email, sign in.
+2. Add a task and complete it. In Supabase **Table Editor, then student_profiles** you should see one row appear.
+3. Open the app on your phone and sign in with the same email. Your task and XP should be there.
+4. Create a second test account in a private window. It must show NONE of the first account's data.
+5. In Settings try **Version history**. Snapshots appear automatically as you use the app.
+
+### Things to know
+- **iPhone:** the installed Home Screen app has its own storage, separate from Safari. Sign in inside the installed app with your password. Email links open in Safari and will not sign in the installed app.
+- **Free plan limits:** Supabase may pause free projects after a period of inactivity, and free plans do not include automatic database backups. Check the current terms in your dashboard. This app keeps its own version history and the Export backup button, so use both.
+- **Shared devices:** signing out removes the local copy on purpose, so the next person never sees the previous student's data. It warns you first if something has not synced.
+- **Two devices at once:** edits are merged, not overwritten. Tasks and purchases from both devices are kept. If a coin purchase happens on two devices before they sync, the higher coin balance wins (the student is never short-changed).
+- **Deleting an account** (Settings) permanently removes the cloud data. The App Store requires this feature.
+- **Children's privacy:** for students under 13, a parent should create the account and own the profiles. Get a lawyer to review COPPA and your privacy policy before you invite children.
+
 ## Changing the name later
 Edit `APP_NAME` near the top of the script in `index.html`, plus the `<title>`, and the names in `manifest.json`.
 
@@ -125,3 +173,95 @@ In `index.html`, copy one `registerCompanion('...', {...})` block, change the id
 
 ## Naming and trademark note
 "Orvi" showed no direct conflicts in a quick web search, but that is not a legal clearance. Check the USPTO trademark database and domain availability before you publish or spend money on branding.
+
+---
+
+## Part 8: Email briefings (morning and evening emails, even when the app is closed)
+
+Do this after Part 7 works. It needs a free Resend account and the Supabase command-line tool. Allow about 30 minutes.
+
+How it works: every 5 minutes a Supabase scheduled job wakes a small function. The function checks each account's chosen times and time zone, builds the briefing from the saved progress, and sends one email per slot through Resend. Each account gets at most one morning and one evening email per day. Nothing is sent if there is nothing to say.
+
+**1. Create the settings table.** In Supabase, open **SQL Editor**, paste `supabase/notifications.sql` (leave the commented part at the bottom alone for now) and click **Run**.
+
+**2. Create a Resend account** at resend.com (free tier). Open **API Keys**, create a key, and copy it.
+- Without your own domain, Resend can only send from `onboarding@resend.dev` to the email you signed up with. That is fine for testing on yourself.
+- To email other people, add and verify your own domain in Resend, then set `MAIL_FROM` below (for example `Orvi <hello@yourdomain.com>`).
+
+**3. Install the Supabase CLI** (supabase.com/docs/guides/cli), then in this folder run:
+```
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF
+```
+(Your project ref is the letters in your Supabase URL, before `.supabase.co`.)
+
+**4. Choose two long random secrets** (any password generator works), one for `CRON_SECRET` and one for `UNSUB_SECRET`. Then set the function's secrets:
+```
+supabase secrets set RESEND_API_KEY=re_xxx CRON_SECRET=your-first-secret UNSUB_SECRET=your-second-secret APP_URL=https://your-live-link/
+supabase secrets set MAIL_FROM="Orvi <onboarding@resend.dev>"
+```
+`APP_URL` is the address where you host Orvi (with the trailing slash).
+
+**5. Deploy the function:**
+```
+supabase functions deploy send-briefings --no-verify-jwt
+```
+(`--no-verify-jwt` is needed because the schedule and the unsubscribe link call it without a login. The function checks its own secrets instead.)
+
+**6. Test it.** Open Orvi, Settings, **Email briefings**. Tick **Send me briefings**, choose your times and time zone, tap **Save**, then **Send a test email**. It should arrive within a minute. Check spam.
+
+**7. Turn on the schedule.** In Supabase, open **Database, Extensions** and enable `pg_cron` and `pg_net`. Then in the SQL Editor, take the commented block at the bottom of `supabase/notifications.sql`, remove the `-- ` marks, replace `YOUR_PROJECT_REF` and `YOUR_CRON_SECRET` (the same value you used for `CRON_SECRET`), and run it.
+
+**8. Check the schedule.** In **Edge Functions, send-briefings, Logs**, you should see a call every 5 minutes. Set a briefing time a few minutes ahead and confirm an email arrives.
+
+Notes:
+- Emails cover every active (not removed) person on the account, with a section per person.
+- A briefing is sent if the job runs within 90 minutes after the chosen time, so a short outage will not skip a day. Later than that, it is skipped rather than sent stale.
+- Every email has a "Turn them off" link, and mail apps show an unsubscribe button.
+- To stop everything: `select cron.unschedule('orvi-briefings');`
+- Cost: free Supabase and Resend tiers cover a small group. Check current limits before a wider launch.
+- Phone notifications are Part 9.
+
+---
+
+## Part 9: Phone and desktop notifications (push)
+
+Do this after Part 8 (it reuses the same schedule, times and function). Allow about 20 minutes.
+
+What you get: the same morning and evening briefings, as a notification on each device where you turn it on. It works even when the app is closed.
+
+Good to know first:
+- **iPhone and iPad:** notifications only work after you add Orvi to the Home Screen (Part 3) and open it from there. iOS 16.4 or newer is required. In a normal Safari tab, Orvi shows a reminder to do this.
+- **Android and computers (Chrome, Edge, Firefox):** works in the browser, with or without installing.
+- Notifications are per device. Turn them on on each phone or computer you want them on.
+
+**1. Add the database pieces.** In Supabase, SQL Editor, paste `supabase/push.sql` and click **Run**.
+
+**2. Make your push keys** (a public and a private key). On any computer with Node.js installed, run:
+```
+npx web-push generate-vapid-keys
+```
+Copy both keys. The **public** key is safe to share. The **private** key must stay secret, like a password.
+
+**3. Put the public key in the app.** Paste it into `config.js` as `VAPID_PUBLIC_KEY`, then re-upload the app files (Part 5).
+
+**4. Give the server both keys:**
+```
+supabase secrets set VAPID_PUBLIC_KEY=your-public-key VAPID_PRIVATE_KEY=your-private-key VAPID_SUBJECT=mailto:you@example.com
+```
+`VAPID_SUBJECT` is a contact address for you. The push services use it if something goes wrong.
+
+**5. Redeploy the function** (it has new code):
+```
+supabase functions deploy send-briefings --no-verify-jwt
+```
+
+**6. Turn it on in the app.** Open Orvi, Settings, **Briefings**, then **Notifications on this device**, then **Turn on**. Allow the permission prompt. Tap **Send a test notification**. It should appear within seconds.
+
+**7. Choose your times.** The morning and evening times and time zone in the same section apply to both email and notifications. Tap **Save** after changing them. The schedule from Part 8 step 7 must be running.
+
+Notes:
+- If a device stops being reachable (app removed, notifications blocked, phone reset), the server notices and forgets it automatically.
+- Signing out turns notifications off on that device.
+- Tapping a notification opens Orvi.
+- If the test notification does not arrive: check the permission in your phone or browser settings, check Edge Functions, send-briefings, Logs for errors, and confirm the public key in `config.js` is the same pair as the private key on the server.
