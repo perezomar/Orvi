@@ -1,4 +1,4 @@
-const CACHE = 'orvi-v4';
+const CACHE = 'orvi-v5';
 const CORE = ['./', './index.html', './cloud.js', './config.js', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 // Only these outside hosts are cached (the app's libraries and fonts).
 // Supabase API calls, sign-in and anything else are NEVER cached or intercepted.

@@ -45,11 +45,12 @@
     const dead = Object.assign({}, r.deleted, l.deleted);
     const o = Object.assign({}, r, l);                       // this device wins plain settings (cards, vibe...)
     o.deleted = dead;
-    o.courses = mergeList(l.courses, r.courses, dead);
-    o.exams = mergeList(l.exams, r.exams, dead);
+    o.courses = mergeList(l.courses, r.courses, dead, (a, b) => ((b.mAt || 0) > (a.mAt || 0) ? Object.assign({}, a, b) : Object.assign({}, b, a)));
+    o.exams = mergeList(l.exams, r.exams, dead, (a, b) => ((b.mAt || 0) > (a.mAt || 0) ? Object.assign({}, a, b) : Object.assign({}, b, a)));   // newest edit wins
+    o.cardBox = Object.assign({}, r.cardBox || {}); Object.keys(l.cardBox || {}).forEach(k => { const x = l.cardBox[k], y = o.cardBox[k]; if (!y || (x.at || 0) >= (y.at || 0)) o.cardBox[k] = x; });
     o.events = mergeList(l.events, r.events, dead);
     o.tasks = mergeList(l.tasks, r.tasks, dead, (a, b) => {
-      const t = Object.assign({}, b, a);
+      const t = (b.mAt || 0) > (a.mAt || 0) ? Object.assign({}, a, b) : Object.assign({}, b, a);   // newest edit wins
       if (a.status === 'completed' || b.status === 'completed') { t.status = 'completed'; t.completedAt = a.completedAt || b.completedAt; }
       t.actualMins = Math.max(a.actualMins || 0, b.actualMins || 0);
       return t;
@@ -69,9 +70,10 @@
       owned: uniq([...(l.comp.owned || []), ...(r.comp.owned || [])])
     });
     // Name, level and removed/restored state: whichever device changed it most recently wins.
-    if ((r.metaAt || 0) > (l.metaAt || 0)) { o.name = r.name; o.level = r.level; o.archived = r.archived; o.metaAt = r.metaAt; }
+    if ((r.metaAt || 0) > (l.metaAt || 0)) { o.name = r.name; o.level = r.level; o.ui = r.ui || ''; o.archived = r.archived; o.metaAt = r.metaAt; }
     return normalize(o);
   }
+  C.merge = mergeProfiles;                                    // exposed for tests
   // A profile that is still just the demo data (nothing real on it yet).
   function isPristine(p) {
     return p.xp === 0 && p.completedTotal === 0 && !p.focusLog.length && !p.activeDays.length && !Object.keys(p.deleted || {}).length &&
@@ -148,7 +150,7 @@
       await pushAll();
       C.backoff = 0; setState('synced');
     } catch (e) { handleErr(e); }
-    finally { C.busy = false; if (C.again) { C.again = false; schedule(400); } }
+    finally { C.busy = false; if (C.again) { C.again = false; schedule(400); } if (window.ensureOnboard) ensureOnboard(); }
   }
   function handleErr(e) {
     const m = String((e && e.message) || e || '');
@@ -192,7 +194,7 @@
     C.user = session.user;
     if (DB.owner && DB.owner !== session.user.id) wipeLocal();  // a different person: never mix accounts on one device
     DB.owner = session.user.id; delete DB.localOnly; saveNow();
-    hideGate(); renderAccount();
+    setState('syncing'); hideGate(); renderAccount();
     await syncNow();
     startLoop();
   }
@@ -269,7 +271,7 @@
     if (r.error) return toast(friendly(r.error));
     closeSheet('recoverSheet'); toast('Password updated.');
   };
-  window.skipSignIn = function () { DB.localOnly = true; saveNow(); hideGate(); setState('local'); renderAccount(); };
+  window.skipSignIn = function () { DB.localOnly = true; saveNow(); hideGate(); setState('local'); renderAccount(); if (window.ensureOnboard) ensureOnboard(); };
 
   /* ---------- settings: account box, history, sign-out, delete ---------- */
   function renderAccount() {
@@ -279,7 +281,7 @@
       box.innerHTML = `<div><b>Signed in</b><div class="sub">${esc(C.user.email || '')}</div></div>
         <div class="sub" id="acctStatus"></div>
         <div id="mailBox" class="stack"></div>
-        <div class="row wrap"><button class="btn sm" onclick="cloudSyncNow()">Sync now</button><button class="btn sm" onclick="cloudHistory()">Version history</button><button class="btn sm" onclick="cloudSignOut()">Sign out</button></div>
+        <div class="row wrap"><button class="btn sm" onclick="cloudSyncNow()">Sync now</button><button class="btn sm" onclick="cloudHistory()">Version history</button><button class="btn sm" onclick="cloudShareOpen()">Share with a parent</button><button class="btn sm" onclick="cloudSignOut()">Sign out</button></div>
         <div><button class="linkbtn" style="color:var(--bad)" onclick="cloudDeleteAccount()">Delete my account and cloud data</button></div>`;
       setState(C.state, C.msg); renderMail(); loadMail();
     } else {
@@ -313,22 +315,31 @@
       <label class="row" style="font-size:14px"><input type="checkbox" id="mEn" ${m.email_enabled ? 'checked' : ''}> Email me briefings at ${esc(C.user.email || 'my email')}</label>
       <div class="row wrap"><div><label for="mAm">Morning</label><input type="time" id="mAm" value="${esc((m.morning || '07:30').slice(0, 5))}"></div><div><label for="mPm">Evening</label><input type="time" id="mPm" value="${esc((m.evening || '19:00').slice(0, 5))}"></div></div>
       <label for="mTz">Time zone</label><select id="mTz">${tzOptions(tz)}</select>
+      <label class="row" style="font-size:14px"><input type="checkbox" id="mQ" ${m.quiet_start && m.quiet_end ? 'checked' : ''}> Quiet hours: no phone notifications between</label>
+      <div class="row wrap"><input type="time" id="mQs" value="${esc((m.quiet_start || '22:00').slice(0, 5))}" aria-label="Quiet hours start"><span class="sub">and</span><input type="time" id="mQe" value="${esc((m.quiet_end || '07:00').slice(0, 5))}" aria-label="Quiet hours end"></div>
+      <label class="row" style="font-size:14px"><input type="checkbox" id="mBh" ${m.behind_alerts !== false ? 'checked' : ''}> Warn me when I'm falling behind or tomorrow looks heavy</label>
       <div class="row wrap"><button class="btn sm p" onclick="cloudSaveMail()">Save</button><button class="btn sm" onclick="cloudTestMail()">Send a test email</button></div>
       <div id="pushBox" class="stack"></div>`;
     renderPush();
   }
   async function saveMailRow(extra) {
     const f = el('mAm') ? { email_enabled: el('mEn').checked, tz: el('mTz').value || localTz(), morning: el('mAm').value || '07:30', evening: el('mPm').value || '19:00' } : {};
-    const row = Object.assign({}, f, extra || {});
-    const r = C.mail ? await C.client.from(N).update(row).eq('owner_id', C.user.id)
-                     : await C.client.from(N).insert(Object.assign({ owner_id: C.user.id }, row));
+    const q = el('mQ') ? { quiet_start: el('mQ').checked ? (el('mQs').value || '22:00') : null, quiet_end: el('mQ').checked ? (el('mQe').value || '07:00') : null, behind_alerts: el('mBh').checked } : {};
+    const send = async row => C.mail ? await C.client.from(N).update(row).eq('owner_id', C.user.id)
+                                     : await C.client.from(N).insert(Object.assign({ owner_id: C.user.id }, row));
+    let row = Object.assign({}, f, q, extra || {}), r = await send(row), partial = false;
+    // Servers that haven't run the quiet-hours update (quiet.sql) still save everything else.
+    if (r.error && /quiet_start|quiet_end|behind_alerts/.test(r.error.message || '') && Object.keys(q).length) {
+      row = Object.assign({}, f, extra || {}); r = await send(row); partial = !r.error;
+    }
     if (!r.error) C.mail = Object.assign({}, C.mail || {}, row, { owner_id: C.user.id });
-    return r;
+    r.partial = partial; return r;
   }
   window.cloudSaveMail = async function () {
     if (!C.user) return;
     const r = await saveMailRow();
     if (r.error) return toast(/relation|does not exist|schema cache/i.test(r.error.message || '') ? 'Briefings are not set up on the server yet.' : "Couldn't save: " + r.error.message);
+    if (r.partial) return toast('Saved, but quiet hours and alerts need the server update (setup guide, Part 10).');
     toast(C.mail.email_enabled ? 'Saved. Email briefings are on.' : 'Saved. Email briefings are off.');
   };
   window.cloudTestMail = async function () {
@@ -465,9 +476,90 @@
     closeSheet('histSheet'); closeSheet('settingsSheet'); buildChrome(); renderAll(); toast('Version restored.');
   };
 
+  /* ---------- read-only share links (see README Part 10) ---------- */
+  const SH = 'profile_shares';
+  const shareUrl = tok => location.origin + location.pathname + '#share=' + tok;
+  async function loadShare(key) {
+    const r = await C.client.from(SH).select('id,token,show_titles').eq('profile_key', key).maybeSingle();
+    if (r.error) throw r.error; return r.data;
+  }
+  async function renderShare() {
+    const box = el('shBody'); if (!box) return;
+    const key = DB.current, nm = (DB.profiles[key] && DB.profiles[key].name) || 'this person';
+    el('shTitle').textContent = 'Share ' + nm + "'s week";
+    if (!C.user || !C.client) { box.innerHTML = '<div class="sub">Sign in first. Links need an account.</div>'; return; }
+    let row; try { row = await loadShare(key); }
+    catch (e) { box.innerHTML = /relation|does not exist|schema cache|not find/i.test((e && e.message) || '') ? '<div class="sub">Sharing is not set up on the server yet. See the setup guide, Part 10.</div>' : "<div class=\"sub\">Couldn't reach the server. Try again in a moment.</div>"; return; }
+    if (!row) { box.innerHTML = `<div class="sub">No link yet for ${esc(nm)}.</div><label class="row" style="font-size:14px"><input type="checkbox" id="shT" checked> Show task names (otherwise just subject and type)</label><button class="btn p" onclick="cloudShareCreate()">Create link</button>`; return; }
+    box.innerHTML = `<div class="quest"><div class="sub">Anyone with this link can view. Send it only to people you trust.</div><input id="shLink" readonly value="${esc(shareUrl(row.token))}" style="width:100%;margin-top:8px" onclick="this.select()"></div>
+      <label class="row" style="font-size:14px"><input type="checkbox" id="shT" ${row.show_titles ? 'checked' : ''} onchange="cloudShareTitles(this.checked)"> Show task names</label>
+      <div class="row wrap"><button class="btn sm" onclick="cloudShareCopy()">Copy link</button><button class="btn sm" onclick="cloudShareRegen()">Make a new link (old one stops)</button><button class="btn sm" style="color:var(--bad)" onclick="cloudShareOff()">Turn off sharing</button></div>`;
+  }
+  window.cloudShareOpen = function () { closeSheet('settingsSheet'); openSheet('shareSheet'); renderShare(); };
+  window.cloudShareCreate = async function () {
+    const t = el('shT'); const r = await C.client.from(SH).insert({ profile_key: DB.current, show_titles: !t || t.checked });
+    if (r.error) toast("Couldn't create the link."); else renderShare();
+  };
+  window.cloudShareTitles = async function (v) { const r = await C.client.from(SH).update({ show_titles: !!v }).eq('profile_key', DB.current); if (r.error) toast("Couldn't save that."); };
+  window.cloudShareCopy = async function () {
+    const v = el('shLink') && el('shLink').value; if (!v) return;
+    try { await navigator.clipboard.writeText(v); toast('Link copied.'); } catch (e) { el('shLink').select(); toast('Select and copy the link.'); }
+  };
+  window.cloudShareOff = async function () {
+    if (!confirm('Turn off sharing? The current link stops working right away.')) return;
+    const r = await C.client.from(SH).delete().eq('profile_key', DB.current); if (r.error) toast("Couldn't turn it off."); else { toast('Sharing is off.'); renderShare(); }
+  };
+  window.cloudShareRegen = async function () {
+    if (!confirm('Make a new link? The old link stops working.')) return;
+    const t = el('shT'), keep = !t || t.checked;
+    const d = await C.client.from(SH).delete().eq('profile_key', DB.current); if (d.error) return toast("Couldn't change the link.");
+    const r = await C.client.from(SH).insert({ profile_key: DB.current, show_titles: keep }); if (r.error) toast("Couldn't change the link."); else renderShare();
+  };
+  // The page a parent sees. It never loads the student's data or the sign-in screen.
+  function shareViewer(tok) {
+    const st = document.createElement('style'); st.textContent = 'body>*:not(#shView){display:none!important}body{background:#f6f6f8!important}';
+    document.head.appendChild(st);
+    const main = document.createElement('main'); main.id = 'shView'; main.setAttribute('style', 'max-width:640px;margin:0 auto;padding:24px 16px 60px;font-family:system-ui,sans-serif;color:#111');
+    main.innerHTML = '<p>Loading…</p>'; document.body.appendChild(main);
+    const root = document.getElementById('shView');
+    const msg = t => { root.innerHTML = '<h1 style="font-size:22px">Orvi</h1><p style="margin-top:12px">' + t + '</p>'; };
+    fetch((CFG.SUPABASE_URL || '').replace(/\/$/, '') + '/rest/v1/rpc/get_share', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: CFG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CFG.SUPABASE_ANON_KEY }, body: JSON.stringify({ p_token: tok }) })
+      .then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+        if (!d) return msg('This link is not active any more. Ask the student for a new one.');
+        const e = x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const d0 = new Date(), t0 = d0.getFullYear() + '-' + String(d0.getMonth() + 1).padStart(2, '0') + '-' + String(d0.getDate()).padStart(2, '0');
+        const wk = new Date(d0.getTime() - 7 * 864e5), w0 = wk.getFullYear() + '-' + String(wk.getMonth() + 1).padStart(2, '0') + '-' + String(wk.getDate()).padStart(2, '0');
+        const T = d.tasks || [], open = T.filter(t => t.status !== 'completed'), over = open.filter(t => t.due < t0), up = open.filter(t => t.due >= t0).sort((a, b) => a.due.localeCompare(b.due));
+        const done = T.filter(t => t.status === 'completed' && t.done && t.done >= w0).length;
+        const fmt = ds => { const [y, m, dd] = ds.split('-').map(Number); return new Date(y, m - 1, dd).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }); };
+        const line = t => `<li style="padding:8px 0;border-top:1px solid #0001"><b>${e(d.titles && t.title ? t.title : (t.course || 'Task') + ' ' + (t.type || 'task'))}</b><div style="font-size:13px;color:#555">${e(t.course)}${d.titles ? ' · ' + e(t.type) : ''} · ${e(fmt(t.due))}</div></li>`;
+        root.innerHTML = `<h1 style="font-size:22px">${e(d.name)}'s week</h1><p style="color:#555;margin-top:4px;font-size:14px">Read-only view. Shared by ${e(d.name)} through Orvi.</p>
+          <div style="display:flex;gap:10px;margin-top:16px"><div style="flex:1;background:#fff;border-radius:12px;padding:12px"><div style="font-size:26px;font-weight:800">${done}</div><div style="font-size:13px;color:#555">finished in the last 7 days</div></div><div style="flex:1;background:#fff;border-radius:12px;padding:12px"><div style="font-size:26px;font-weight:800;${over.length ? 'color:#b3261e' : ''}">${over.length}</div><div style="font-size:13px;color:#555">overdue</div></div><div style="flex:1;background:#fff;border-radius:12px;padding:12px"><div style="font-size:26px;font-weight:800">${up.length}</div><div style="font-size:13px;color:#555">coming up</div></div></div>
+          ${over.length ? `<h2 style="font-size:16px;margin-top:20px;color:#b3261e">Overdue</h2><ul style="list-style:none;padding:0;background:#fff;border-radius:12px;padding:4px 12px">${over.map(line).join('')}</ul>` : ''}
+          <h2 style="font-size:16px;margin-top:20px">Coming up</h2>${up.length ? `<ul style="list-style:none;padding:0;background:#fff;border-radius:12px;padding:4px 12px">${up.map(line).join('')}</ul>` : '<p style="color:#555;margin-top:6px">Nothing due in the next three weeks.</p>'}`;
+      }).catch(() => msg("Couldn't load this page. Check your connection and try again."));
+  }
+
+  /* ---------- AI scanner: photo / screenshot / PDF / text -> tasks to review (see README Part 11) ---------- */
+  window.cloudScan = async function (payload) {
+    if (!ENABLED) return { err: 'off' };
+    if (!C.user || !C.client) return { err: 'sign_in' };
+    if (!navigator.onLine) return { err: 'offline' };
+    try {
+      const sess = await C.client.auth.getSession(); const tok = sess && sess.data && sess.data.session && sess.data.session.access_token;
+      if (!tok) return { err: 'sign_in' };
+      const r = await fetch((CFG.SUPABASE_URL || '').replace(/\/$/, '') + '/functions/v1/scan-import', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok, apikey: CFG.SUPABASE_ANON_KEY }, body: JSON.stringify(payload) });
+      let j = {}; try { j = await r.json(); } catch (e) {}
+      if (!r.ok) return { err: j.error || (r.status === 404 ? 'not_deployed' : 'server'), limit: j.limit };
+      return { data: j };
+    } catch (e) { return { err: 'offline' }; }
+  };
+
   /* ---------- boot ---------- */
   window.addEventListener('storage', e => { if (e.key === KEY && C.user) schedule(500); });
   (async function boot() {
+    const sm = /^#share=([0-9a-f]{64})$/.exec(location.hash);
+    if (sm && ENABLED) { shareViewer(sm[1]); return; }
     renderAccount();
     if (!ENABLED) { setState('local'); return; }
     checkUnsub();

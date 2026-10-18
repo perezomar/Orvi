@@ -12,6 +12,9 @@ Files in this folder (keep them together):
 | `cloud.js` | Accounts and cloud sync (does nothing until you add keys) |
 | `config.js` | Where you paste your Supabase keys (Part 7) |
 | `supabase/schema.sql` | The database setup, run once in Supabase (Part 7) |
+| `supabase/notifications.sql`, `push.sql`, `quiet.sql` | Briefing, push and quiet-hours setup (Parts 8 and 9) |
+| `supabase/share.sql` | Read-only parent links (Part 10) |
+| `supabase/scan.sql`, `supabase/functions/scan-import/` | The AI scanner (Part 11) |
 | `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` | App icons |
 
 ---
@@ -66,7 +69,9 @@ Open it from the new icon. It runs full screen like an app.
 ## Part 4: Using it well
 
 - **First run:** go to Settings, tap **Clear sample tasks**, then add your real courses. Use the **+** button to add tasks, import a calendar (.ics file) or paste a syllabus.
-- **People:** each person has their own name, level (College, High school or Middle school), tasks, XP, coins and companion. Tap the name at the top (phone) or in the sidebar (desktop) to switch, or to **Add a person**. Two people can share a level. Use Settings, then **Edit name or level** to rename. **Remove** hides a person but keeps their progress; restore them under Settings, **Removed people**. With cloud sync on, names and removals follow you across devices.
+- **People and levels:** Orvi starts empty. The first time you open it, it asks for a name and a level (Elementary, Middle school, High school, College, Grad school, or Work / Professional). Each person has their own tasks, XP, coins and companion. Tap the name at the top (phone) or in the sidebar (desktop) to switch or **Add a person**. Two people can share a level. Settings has **Edit name or level**. **Remove** hides a person but keeps their progress; restore them under Settings, **Removed people**. With cloud sync on, names, levels and removals follow you across devices.
+- **Look and feel:** each person gets a look that matches their level, and you can change it in Settings, **Look and feel**. **Kid friendly** has bigger buttons, a bigger companion and words like Subjects, Homework and Tests. **Standard** is the default for middle school through grad school. **Professional** is calmer and more compact, with Projects, Tasks, Check-ins and Deadlines, and a small companion. Pick **Match their level** to go back to the default.
+- **Staying organized:** the top of Home always shows one task to do right now, with a reason (Start, Done or Not now). A **Heads up** card appears when a day has more due than you usually have time for, and names a task to start early. The Plan tab shows the next 7 days as bars against your usual study time (set it under Settings, **Study time per day**). If two or more tasks are overdue, **Give me a fresh start** spreads them over the coming days without overloading any day, and it can be undone. **Review** on Home opens a one-screen look at the last week and the next one; it also pops up as a card from Friday afternoon to Monday morning.
 - **Reminders:** tap **Daily briefing**, then **Enable reminders**. Reminders only fire while the app is open. Reliable background notifications need the accounts build (see Part 6).
 
 ### Protect your progress (important)
@@ -265,3 +270,47 @@ Notes:
 - Signing out turns notifications off on that device.
 - Tapping a notification opens Orvi.
 - If the test notification does not arrive: check the permission in your phone or browser settings, check Edge Functions, send-briefings, Logs for errors, and confirm the public key in `config.js` is the same pair as the private key on the server.
+
+
+## Part 10: Family features (optional)
+
+**Family week (no setup).** When two or more people are on one account, Settings shows a **Family week** button. It lists everyone side by side: what is due in the next 7 days, what is overdue, and whether the week is heavier than usual. Tap a name to switch to that person.
+
+**Share with a parent or tutor (needs one SQL step, about 3 minutes).**
+
+1. In Supabase open **SQL Editor**, then **New query**. Paste all of `supabase/share.sql` and click **Run**. It should say success.
+2. In Orvi, sign in, then Settings, **Account and sync**, **Share with a parent**.
+3. Choose whether task names show, then **Create link**. Copy the link and send it to the parent or tutor.
+
+What the link shows: that one person's upcoming tasks for about three weeks, what is overdue, and how many tasks were finished in the last 7 days. It is read-only and needs no account. It never shows notes, links, grades, flashcards or anyone else on the account.
+
+Turning it off: the same screen has **Turn off sharing** (the link stops working at once) and **Make a new link** (the old link stops, a new one is created). Anyone who has the link can see it, so send it only to people you trust. Because the link works without signing in, treat it like a password for that one person's schedule.
+
+For younger students, check the rules where you live about sharing a child's information, and tell the child who can see their link.
+
+
+## Part 11: The scanner (photo, screenshot or PDF to tasks)
+
+Students tap **+**, then **Scan**, and choose a photo, screenshot or PDF of a syllabus, assignment list or board. An AI reads it and proposes tasks. The student then checks each one (date, course) and taps **Add selected**. Nothing is added without that review. Low-confidence or undated items start switched off and marked **Check**. Pasting text and using **Find tasks (basic)** still works offline with no AI.
+
+**How it works and what it costs.** The picture goes from the app to a Supabase Edge Function, and the function calls the Anthropic API with a key that only the server holds. The key is never in the app or in `config.js`. Each scan costs a few cents or less. Each person gets 15 scans a day by default so one account cannot run up your bill. You pay for scans through your Anthropic account, so decide before you open the app to others whether it stays free, has a daily limit, or becomes part of a paid plan.
+
+**Setup (about 10 minutes).**
+
+1. Get an API key at console.anthropic.com (API keys, create key). Add a small spending limit there.
+2. In Supabase, SQL Editor, New query. Paste all of `supabase/scan.sql` and click Run.
+3. On your computer, in this folder:
+
+```
+supabase secrets set ANTHROPIC_API_KEY=your-key-here
+supabase secrets set SCAN_DAILY_LIMIT=15
+supabase functions deploy scan-import
+```
+
+Do not add `--no-verify-jwt` here. Scanning must only work for signed-in people. Optional: `supabase secrets set SCAN_MODEL=` another model name if you want a cheaper or stronger one.
+
+4. Open Orvi signed in, tap **+**, **Scan**, choose a photo of any dated list. You should see tasks to review.
+
+If you see "scanner is not set up on the server", step 3's deploy did not finish. If you see "no AI key", the secret is missing. If scans stop for the day, the limit was reached.
+
+**Privacy.** Pictures are sent to the AI service to be read, and are not saved by Orvi. Tell students not to scan anything with other people's personal details. For young children, check the rules where you live before turning this on, and mention it in your privacy policy.

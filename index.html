@@ -16,7 +16,15 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 :root{--bg:#f5f4fb;--card:#fff;--ink:#1d1b2e;--mute:#6b6a80;--line:#ebe9f5;--acc:#6c5ce7;--acc2:#ff8a4c;--ok:#16a34a;--warn:#f59e0b;--bad:#ef4444;--soft:#efecff;--shadow:0 8px 28px rgba(60,40,140,.08);--r:20px}
+html[data-size=lg]{--z:1.12}html[data-size=xl]{--z:1.28}html[data-size=lg] body{zoom:1.12}html[data-size=xl] body{zoom:1.28}
+html[data-hc=on]{--mute:#3d3b52;--line:#8a88a0;--acc:#4b3fd0;--soft:#e4e0ff}
+html[data-hc=on][data-theme=dark]{--mute:#d6d4ea;--line:#7d7aa0;--acc:#b3a8ff;--soft:#322d5c}
+html[data-hc=on] .card,html[data-hc=on] .task,html[data-hc=on] .quest,html[data-hc=on] .btn,html[data-hc=on] input,html[data-hc=on] select,html[data-hc=on] textarea{border-width:2px}
+html[data-cb=on]{--ok:#0072b2;--bad:#d55e00;--warn:#c98a00}
+html[data-motion=reduce] *{animation:none!important;transition:none!important}
+html[data-read=on] body{letter-spacing:.03em;word-spacing:.12em;line-height:1.7}
 [data-theme=dark]{--bg:#0e0d16;--card:#1a1927;--ink:#f4f3ff;--mute:#9a98b3;--line:#2a2840;--soft:#262244;--shadow:0 8px 28px rgba(0,0,0,.4)}
+[hidden]{display:none!important}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-weight:600}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -39,7 +47,7 @@ svg{display:block}
 .fab:active{transform:scale(.92)}
 @media(min-width:900px){.side{display:flex}.bottom{display:none}.main{padding:34px 36px 60px}.fab{bottom:28px;right:28px}.topbar-m{display:none!important}}
 .card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);border:1px solid var(--line)}
-.grid{display:grid;gap:16px}.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr}
+.grid{display:grid;gap:16px}.grid>*,.stack>*{min-width:0}.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr}
 @media(min-width:700px){.g3{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:900px){.g2{grid-template-columns:3fr 2fr}.g3{grid-template-columns:repeat(3,1fr)}}
 h2{font-size:21px;font-weight:900;letter-spacing:-.3px}h3{font-size:15px;font-weight:800}
@@ -54,13 +62,38 @@ h2{font-size:21px;font-weight:900;letter-spacing:-.3px}h3{font-size:15px;font-we
 .mascot{flex:none;animation:bob 3s ease-in-out infinite}
 body.calm .mascot{animation:none}
 @keyframes bob{50%{transform:translateY(-4px)}}
+/* Look and feel: Kid friendly / Professional (Standard is the default above) */
+body[data-ui=kid]{--r:28px;--acc:#7c5cff;font-size:17px}
+body[data-ui=kid] .btn{padding:14px 22px;font-size:15px;border-radius:18px}
+body[data-ui=kid] .btn.sm{padding:9px 14px;font-size:13px}
+body[data-ui=kid] .task{padding:17px;border-radius:22px}
+body[data-ui=kid] .tt{font-size:16px}
+body[data-ui=kid] .tile{width:48px;height:48px;border-radius:16px}
+body[data-ui=kid] .chk{width:34px;height:34px;border-radius:12px}
+body[data-ui=kid] h2{font-size:24px}
+body[data-ui=kid] #heroMascot svg{width:128px;height:auto}
+body[data-ui=kid] .bubble{font-size:16px}
+body[data-ui=kid] .bottom button{font-size:12px}
+body[data-ui=pro]{--r:12px;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:500}
+html[data-theme=light] body[data-ui=pro]{--acc:#3558d6;--soft:#eef1fa;--shadow:0 1px 6px rgba(20,30,60,.07)}
+html[data-theme=dark] body[data-ui=pro]{--acc:#7d96ff;--soft:#222842;--shadow:0 1px 6px rgba(0,0,0,.35)}
+body[data-ui=pro] .hero{background:#1f2a44;gap:12px;padding:14px 18px}
+body[data-ui=pro] #heroMascot svg{width:52px;height:auto}
+body[data-ui=pro] .mascot{animation:none}
+body[data-ui=pro] .bubble{background:rgba(255,255,255,.1);border-radius:10px;font-weight:500}
+body[data-ui=pro] .btn,body[data-ui=pro] .chip,body[data-ui=pro] .task,body[data-ui=pro] .tile,body[data-ui=pro] .stat,body[data-ui=pro] .block{border-radius:10px}
+body[data-ui=pro] .btn.p,body[data-ui=pro] .fab,body[data-ui=pro] .logo .mk{background:var(--acc)}
+body[data-ui=pro] .bar>i{background:var(--acc)}
+body[data-ui=pro] h2,body[data-ui=pro] h3,body[data-ui=pro] .tt{font-weight:700}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .task{display:flex;gap:12px;align-items:center;padding:13px;border-radius:16px;border:1px solid var(--line);background:var(--card)}
 .task.done{opacity:.55}.task.late{border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.06)}
 .tile{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;color:#fff;flex:none}
 .chk{width:26px;height:26px;border-radius:9px;border:2px solid var(--line);flex:none;display:grid;place-items:center;color:#fff;transition:.15s}
 .chk:hover{border-color:var(--acc)}.chk.on{background:var(--ok);border-color:var(--ok)}
-.tt{font-weight:800;font-size:14px}.meta{font-size:12px;color:var(--mute);display:flex;gap:10px;flex-wrap:wrap;margin-top:3px;align-items:center}
+.m0{background:var(--soft);color:var(--mute)}.m1{background:rgba(239,68,68,.14);color:var(--bad)}.m2{background:rgba(245,158,11,.16);color:#b45309}.m3{background:rgba(16,185,129,.16);color:#047857}
+.tt{font-weight:800;font-size:14px}.lnk{all:unset;cursor:pointer}.lnk:hover,.lnk:focus-visible{text-decoration:underline}.meta{font-size:12px;color:var(--mute);display:flex;gap:10px;flex-wrap:wrap;margin-top:3px;align-items:center}
 .meta span{display:inline-flex;align-items:center;gap:4px}
 .tag{font-size:10px;font-weight:900;padding:2px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:.4px}
 .pu{background:rgba(239,68,68,.14);color:var(--bad)}.ph{background:rgba(249,115,22,.14);color:#ea580c}.pm{background:rgba(245,158,11,.14);color:#b45309}.pl{background:var(--soft);color:var(--mute)}
@@ -86,7 +119,7 @@ input[type=checkbox]{width:auto}
 .sp.on{border-color:var(--acc);background:var(--soft)}.sp.lock{opacity:.6}
 .item{padding:12px;border-radius:16px;border:1px solid var(--line);text-align:center;font-size:12px;font-weight:800;color:var(--ink)}
 .item.on{border-color:var(--acc);background:var(--soft)}
-.toasts{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100;width:min(92vw,380px);display:grid;gap:8px;pointer-events:none}
+.toasts{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100;width:min(calc(92vw / var(--z,1)),380px);display:grid;gap:8px;pointer-events:none}
 .toast{background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:14px;font-size:13px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:up .25s ease}
 .topbar-m{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .tabs{display:flex;gap:6px;background:var(--soft);padding:5px;border-radius:14px}
@@ -143,10 +176,12 @@ input[type=checkbox]{width:auto}
         </div>
       </div>
 
+      <div id="smartBox" class="stack"></div>
+
       <div class="grid g2">
         <div class="stack">
           <div class="card">
-            <div class="row between"><h3 class="hd"><i data-i="chart" data-s="18"></i>This week</h3><span class="sub" id="weekRange"></span></div>
+            <div class="row between"><h3 class="hd"><i data-i="chart" data-s="18"></i>This week</h3><span class="row" style="gap:10px"><button class="linkbtn" onclick="openReview()">Review</button><span class="sub" id="weekRange"></span></span></div>
             <div class="row" style="margin-top:14px;gap:18px">
               <div class="ring"><svg viewBox="0 0 100 100" width="96" height="96"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--line)" stroke-width="10"/><circle id="wRing" cx="50" cy="50" r="42" fill="none" stroke="var(--acc)" stroke-width="10" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 50 50)" style="transition:stroke-dashoffset .6s"/></svg><b id="wPct">0%</b></div>
               <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
@@ -173,21 +208,22 @@ input[type=checkbox]{width:auto}
 
         <div class="stack">
           <div class="card"><h3 class="hd"><i data-i="star" data-s="18"></i>Weekly quests</h3><div id="quests" class="stack" style="margin-top:12px"></div></div>
-          <div class="card"><div class="row between"><h3 class="hd"><i data-i="flag" data-s="18"></i>Exams</h3><button class="btn sm" onclick="openSheet('examSheet')"><i data-i="plus" data-s="14"></i>Add</button></div><div id="examList" class="stack" style="margin-top:12px"></div></div>
+          <div class="card"><div class="row between"><h3 class="hd"><i data-i="flag" data-s="18"></i><span data-v="Exams">Exams</span></h3><button class="btn sm" onclick="openSheet('examSheet')"><i data-i="plus" data-s="14"></i>Add</button></div><div id="examList" class="stack" style="margin-top:12px"></div></div>
         </div>
       </div>
     </section>
 
     <!-- PLAN -->
     <section id="v-plan" class="stack" hidden>
-      <div class="row between"><div><h2>Schedule</h2><p class="sub">Classes, deadlines, and suggested study blocks.</p></div><button class="btn p sm" onclick="openSheet('eventSheet')"><i data-i="plus" data-s="14"></i>Class / block</button></div>
+      <div class="row between"><div><h2>Schedule</h2><p class="sub">Classes, deadlines, and suggested study blocks.</p></div><div class="row"><button class="btn sm" onclick="openRot()">A/B days</button><button class="btn p sm" onclick="openSheet('eventSheet')"><i data-i="plus" data-s="14"></i>Class / block</button></div></div>
+      <div id="loadWeek"></div>
       <div class="days" id="dayStrip"></div>
       <div class="card"><h3 id="dayTitle"></h3><div id="dayBody" class="stack" style="margin-top:12px"></div></div>
     </section>
 
     <!-- COURSES -->
     <section id="v-courses" class="stack" hidden>
-      <div class="row between"><div><h2>Courses</h2><p class="sub">Progress and what's next for each class.</p></div><button class="btn p sm" onclick="openSheet('courseSheet')"><i data-i="plus" data-s="14"></i>Course</button></div>
+      <div class="row between"><div><h2 data-v="Courses">Courses</h2><p class="sub">Progress and what's next for each class.</p></div><button class="btn p sm" onclick="openSheet('courseSheet')"><i data-i="plus" data-s="14"></i><span data-v="Course">Course</span></button></div>
       <div id="courseGrid" class="grid g3"></div>
     </section>
 
@@ -207,7 +243,7 @@ input[type=checkbox]{width:auto}
             <div class="row between"><span class="sub">Sessions</span><b id="fSes">0</b></div>
             <div class="row between"><span class="sub">This week</span><b id="fWeek">0m</b></div>
           </div>
-          <div class="card stack"><h3 class="hd"><i data-i="cards" data-s="18"></i>Flashcards</h3><p class="sub">Write cards as front :: back and flip through them for XP.</p><button class="btn p" onclick="openSheet('cardsSheet')">Open cards</button></div>
+          <div class="card stack"><h3 class="hd"><i data-i="cards" data-s="18"></i>Flashcards</h3><p class="sub">Write cards as front :: back. Practice brings back the ones you miss and spaces out the ones you know.</p><button class="btn p" onclick="openSheet('cardsSheet')">Open cards</button></div>
         </div>
       </div>
     </section>
@@ -239,54 +275,125 @@ input[type=checkbox]{width:auto}
 <div class="sheet" id="capSheet"><div class="panel"><div class="grab"></div><h2 style="margin-bottom:14px">Add to your week</h2><div class="stack">
   <button class="opt" onclick="closeSheet('capSheet');openTask()"><span class="tile" style="background:var(--acc)"><i data-i="keyboard" data-s="22"></i></span><div><h3>Type a task</h3><p class="sub">Title, course, due date, time estimate</p></div></button>
   <button class="opt" onclick="closeSheet('capSheet');openSheet('icsSheet')"><span class="tile" style="background:#10b981"><i data-i="calplus" data-s="22"></i></span><div><h3>Import a calendar</h3><p class="sub">.ics file from Canvas, Google, or your school</p></div></button>
-  <button class="opt" onclick="closeSheet('capSheet');openSheet('scanSheet')"><span class="tile" style="background:var(--acc2)"><i data-i="file" data-s="22"></i></span><div><h3>Scan a syllabus</h3><p class="sub">Paste text and review the tasks it finds</p></div></button>
+  <button class="opt" onclick="closeSheet('capSheet');openSheet('scanSheet')"><span class="tile" style="background:var(--acc2)"><i data-i="file" data-s="22"></i></span><div><h3>Scan a photo, PDF or syllabus</h3><p class="sub">Review the tasks it finds before adding</p></div></button>
 </div></div></div>
 
 <div class="sheet" id="taskSheet"><div class="panel"><div class="grab"></div><h2>New task</h2>
 <form onsubmit="saveTask(event)">
   <label for="tTitle">Title</label><input id="tTitle" required>
-  <div class="row"><div style="flex:1"><label for="tCourse">Course</label><select id="tCourse"></select></div><div style="flex:1"><label for="tType">Type</label><select id="tType"><option value="assignment">Assignment</option><option value="quiz">Quiz</option><option value="reading">Reading</option><option value="test">Test</option><option value="video">Video</option></select></div></div>
+  <div class="row"><div style="flex:1"><label for="tCourse" data-v="Course">Course</label><select id="tCourse"></select></div><div style="flex:1"><label for="tType">Type</label><select id="tType"><option value="assignment">Assignment</option><option value="quiz">Quiz</option><option value="reading">Reading</option><option value="test">Test</option><option value="video">Video</option></select></div></div>
   <div class="row"><div style="flex:1"><label for="tDue">Due</label><input type="date" id="tDue" required></div><div style="flex:1"><label for="tDur">Minutes</label><input type="number" id="tDur" value="45" min="5" step="5"></div></div>
-  <label for="tPri">Priority</label><select id="tPri"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select>
+  <div class="row"><div style="flex:1"><label for="tPri">Priority</label><select id="tPri"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div><div style="flex:1"><label for="tRep">Repeats</label><select id="tRep"><option value="">Never</option><option value="daily">Every day</option><option value="weekdays">Weekdays</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select></div></div>
   <div class="row" style="margin-top:18px;justify-content:flex-end"><button type="button" class="btn" onclick="closeSheet('taskSheet')">Cancel</button><button class="btn p">Save task</button></div>
+</form></div></div>
+
+<div class="sheet" id="detailSheet"><div class="panel"><div class="grab"></div><h2>Details</h2>
+<form onsubmit="saveDetail(event)">
+  <label for="dTitle">Title</label><input id="dTitle" required>
+  <div class="row"><div style="flex:1"><label for="dCourse" data-v="Course">Course</label><select id="dCourse"></select></div><div style="flex:1"><label for="dType">Type</label><select id="dType"><option value="assignment">Assignment</option><option value="quiz">Quiz</option><option value="reading">Reading</option><option value="test">Test</option><option value="video">Video</option></select></div></div>
+  <div class="row"><div style="flex:1"><label for="dDue">Due</label><input type="date" id="dDue" required></div><div style="flex:1"><label for="dDur">Minutes</label><input type="number" id="dDur" min="5" step="5"></div></div>
+  <div class="row"><div style="flex:1"><label for="dPri">Priority</label><select id="dPri"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div><div style="flex:1"><label for="dRep">Repeats</label><select id="dRep"><option value="">Never</option><option value="daily">Every day</option><option value="weekdays">Weekdays</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select></div></div>
+  <label>Steps <span class="sub" id="dStepsNote"></span></label>
+  <div id="dSteps" class="stack" style="gap:6px"></div>
+  <div class="row" style="margin-top:8px"><input id="dNewStep" placeholder="Add a step" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addStep()}"><button type="button" class="btn sm" onclick="addStep()" aria-label="Add step">Add</button></div>
+  <div id="dPace" class="sub" style="margin-top:6px"></div>
+  <div class="row"><div style="flex:1"><label for="dScore">Score <span class="sub">(optional)</span></label><input id="dScore" type="number" inputmode="decimal" min="0" step="any"></div><div style="flex:1"><label for="dTotal">Out of</label><input id="dTotal" type="number" inputmode="decimal" min="0" step="any"></div></div>
+  <label for="dNote">Notes</label><textarea id="dNote" rows="3" placeholder="Anything to remember"></textarea>
+  <label for="dLink">Link</label><input id="dLink" type="text" inputmode="url" autocapitalize="off" autocomplete="off" placeholder="https://">
+  <div class="row" style="margin-top:18px;justify-content:flex-end"><button type="button" class="btn" onclick="closeSheet('detailSheet')">Close</button><button class="btn p">Save</button></div>
 </form></div></div>
 
 <div class="sheet" id="icsSheet"><div class="panel"><div class="grab"></div><h2>Import calendar</h2><p class="sub" style="margin:6px 0">Export a .ics file from your school calendar, then choose it or paste it. Live feed links are blocked by browsers and need a backend.</p>
   <input type="file" accept=".ics,text/calendar" onchange="readInto(this,'icsText')"><label for="icsText">Or paste</label><textarea id="icsText" rows="4" placeholder="BEGIN:VCALENDAR…"></textarea>
   <button class="btn p" style="margin-top:12px;width:100%" onclick="parseIcs()">Preview</button><div id="icsPrev" class="stack" style="margin-top:12px"></div></div></div>
 
-<div class="sheet" id="scanSheet"><div class="panel"><div class="grab"></div><h2>Scan a syllabus</h2><p class="sub" style="margin:6px 0">Paste a schedule or load a .txt file. Any line with a date becomes a task you can review. Photos and PDFs need an AI/OCR backend, which comes with the full build.</p>
-  <input type="file" accept=".txt,text/plain" onchange="readInto(this,'scanText')"><label for="scanText">Text</label><textarea id="scanText" rows="5" placeholder="Oct 20 - Quiz 3&#10;10/27 Midterm exam&#10;2026-11-02 Read chapter 8"></textarea>
-  <button class="btn p" style="margin-top:12px;width:100%" onclick="parseSyl()">Find tasks</button><div id="scanPrev" class="stack" style="margin-top:12px"></div></div></div>
+<div class="sheet" id="scanSheet"><div class="panel"><div class="grab"></div><h2>Scan to add tasks</h2><p class="sub" style="margin:6px 0">Take a photo or pick screenshots or a PDF of a syllabus, assignment list or board. You review everything before anything is added.</p>
+  <label class="btn p" style="width:100%;cursor:pointer;margin:6px 0"><i data-i="upload" data-s="16"></i>Choose photo, screenshot or PDF<input type="file" accept="image/*,application/pdf" multiple style="display:none" onchange="scanFiles(this)"></label>
+  <div id="scanStatus" class="sub" role="status" aria-live="polite"></div>
+  <label for="scanText">Or paste text (works offline, no AI)</label><textarea id="scanText" rows="4" placeholder="Oct 20 - Quiz 3&#10;10/27 Midterm exam&#10;2026-11-02 Read chapter 8"></textarea>
+  <div class="row wrap" style="margin-top:8px"><button class="btn sm" onclick="parseSyl()">Find tasks (basic)</button><button class="btn sm" onclick="scanText()">Find tasks with AI</button></div>
+  <div id="scanQ" class="sub" style="margin-top:10px"></div><div id="scanPrev" class="stack" style="margin-top:12px"></div></div></div></div>
 
-<div class="sheet" id="courseSheet"><div class="panel"><div class="grab"></div><h2>New course</h2><form onsubmit="saveCourse(event)">
+<div class="sheet" id="courseSheet"><div class="panel"><div class="grab"></div><h2 data-v="Course" data-pre="New " data-lc="1">New course</h2><form onsubmit="saveCourse(event)">
   <label for="cName">Name</label><input id="cName" required><label for="cCode">Code</label><input id="cCode"><label for="cInst">Instructor</label><input id="cInst">
   <div class="row" style="margin-top:18px;justify-content:flex-end"><button type="button" class="btn" onclick="closeSheet('courseSheet')">Cancel</button><button class="btn p">Save</button></div></form></div></div>
 
 <div class="sheet" id="examSheet"><div class="panel"><div class="grab"></div><h2>New exam</h2><form onsubmit="saveExam(event)">
-  <label for="eTitle">Title</label><input id="eTitle" required><label for="eDate">Date</label><input type="date" id="eDate" required>
+  <label for="eTitle">Title</label><input id="eTitle" required><label for="eDate">Date</label><input type="date" id="eDate" required><label for="eCourse"><span data-v="Course">Course</span> (optional)</label><select id="eCourse"></select>
   <div class="row" style="margin-top:18px;justify-content:flex-end"><button type="button" class="btn" onclick="closeSheet('examSheet')">Cancel</button><button class="btn p">Save</button></div></form></div></div>
+
+<div class="sheet" id="examDetail"><div class="panel"><div class="grab"></div>
+  <div class="row between"><h2 id="xTitle">Exam</h2><span class="chip" id="xDays"></span></div>
+  <div class="card" style="margin-top:12px"><div class="row between"><b>Readiness estimate</b><b id="xScore" style="font-size:20px"></b></div><div class="bar" style="margin:8px 0"><i id="xBar" style="width:0"></i></div><div class="sub" id="xScoreNote"></div></div>
+  <label>Topics <span class="sub">tap a topic to update how it feels</span></label>
+  <div id="xTopics" class="stack" style="gap:6px"></div>
+  <div class="row" style="margin-top:8px"><input id="xNewTopic" placeholder="Add a topic" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addTopic()}"><button type="button" class="btn sm" onclick="addTopic()">Add</button></div>
+  <label for="xCards">Practice cards <span class="sub">front :: back, one per line</span></label>
+  <textarea id="xCards" rows="4" placeholder="NPV :: Present value of cash flows minus the investment" oninput="saveExamCards()"></textarea>
+  <div class="row wrap" style="margin-top:8px"><button type="button" class="btn p sm" id="xPractice" onclick="startPractice(examId)">Practice</button><button type="button" class="btn sm" onclick="previewRevision()">Build revision plan</button></div>
+  <div id="xPlan" class="stack" style="margin-top:12px"></div>
+  <div class="row between" style="margin-top:18px"><button type="button" class="btn sm" style="color:var(--bad)" onclick="delExam(examId);closeSheet('examDetail')">Remove</button><button type="button" class="btn p" onclick="closeSheet('examDetail')">Done</button></div>
+</div></div>
+
+<div class="sheet" id="practiceSheet"><div class="panel"><div class="grab"></div><div class="row between"><h2>Practice</h2><span class="sub" id="prCount"></span></div>
+  <div class="flash" id="prCard" onclick="flipPractice()" style="margin:12px 0" role="button" tabindex="0"></div>
+  <div class="row between" id="prBtns"><button class="btn" onclick="gradeCard(false)">Missed it</button><button class="btn p" onclick="gradeCard(true)">Got it</button></div>
+  <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn sm" onclick="closeSheet('practiceSheet')">Close</button></div></div></div>
+
+<div class="sheet" id="gradesSheet"><div class="panel"><div class="grab"></div>
+  <div class="row between"><h2 id="gTitle">Grades</h2><b id="gAvg" style="font-size:22px"></b></div>
+  <div class="sub" id="gNote" style="margin-top:4px"></div>
+  <div id="gTrend" style="display:flex;gap:6px;align-items:flex-end;height:60px;margin-top:12px"></div>
+  <label for="gMode">How is it graded?</label><select id="gMode" onchange="setGradeMode(this.value)"><option value="points">Total points</option><option value="weighted">Weighted by type</option></select>
+  <div id="gWeights" class="row wrap" style="margin-top:8px"></div>
+  <div class="card stack" style="margin-top:14px"><b>What do I need?</b>
+    <div class="row"><div style="flex:1"><label for="gTarget">Goal for the course (%)</label><input id="gTarget" type="number" inputmode="decimal" min="1" max="100" oninput="setGradeNum('target',this.value)"></div><div style="flex:1"><label for="gRest">Still to come (% of grade)</label><input id="gRest" type="number" inputmode="decimal" min="1" max="100" oninput="setGradeNum('rest',this.value)"></div></div>
+    <div id="gNeed" class="sub"></div></div>
+  <label>Scores</label><div id="gItems" class="stack" style="gap:6px"></div>
+  <div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn p" onclick="closeSheet('gradesSheet')">Done</button></div>
+</div></div>
+
+<div class="sheet" id="rotSheet"><div class="panel"><div class="grab"></div><h2>A/B days</h2>
+  <p class="sub" style="margin:6px 0">For schools that alternate day types. Classes marked A or B only show on those days. Weekends and no-school days don't count.</p>
+  <label for="rOn">Rotating schedule</label><select id="rOn" onchange="setRot()"><option value="0">Off</option><option value="1">On</option></select>
+  <div id="rBox" class="stack">
+    <label for="rLetter">Today (or the next school day) is</label><div class="sub">If the letters ever drift, set this again to today's real letter.</div><select id="rLetter" onchange="setRot()"><option value="A">An A day</option><option value="B">A B day</option></select>
+    <label for="rOffDate">No-school days <span class="sub">(holidays, breaks)</span></label>
+    <div class="row"><input type="date" id="rOffDate" style="flex:1"><button type="button" class="btn sm" onclick="addOff()">Add</button></div>
+    <div id="rOffList" class="row wrap"></div>
+  </div>
+  <div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn p" onclick="closeSheet('rotSheet')">Done</button></div></div></div>
 
 <div class="sheet" id="eventSheet"><div class="panel"><div class="grab"></div><h2>Class or block</h2><form onsubmit="saveEvent(event)">
   <label for="vTitle">Title</label><input id="vTitle" required><label>Repeats on</label><div class="row wrap" id="vDays"></div>
   <div class="row"><div style="flex:1"><label for="vS">Start</label><input type="time" id="vS" value="09:00" required></div><div style="flex:1"><label for="vE">End</label><input type="time" id="vE" value="10:00" required></div></div>
+  <div id="vRotWrap"><label for="vRot">Which days</label><select id="vRot"><option value="">Every school day</option><option value="A">A days only</option><option value="B">B days only</option></select></div>
   <label for="vL">Location or link</label><input id="vL">
   <div class="row" style="margin-top:18px;justify-content:flex-end"><button type="button" class="btn" onclick="closeSheet('eventSheet')">Cancel</button><button class="btn p">Save</button></div></form></div></div>
 
 <div class="sheet" id="cardsSheet"><div class="panel"><div class="grab"></div><h2>Flashcards</h2>
   <textarea id="cardsText" rows="4" style="margin-top:10px" placeholder="NPV :: Present value of cash flows minus investment" oninput="saveCards()"></textarea>
   <div class="flash" id="flash" onclick="flipCard()" style="margin:12px 0" role="button" tabindex="0"></div>
-  <div class="row between"><button class="btn sm" onclick="stepCard(-1)">Prev</button><span class="sub" id="cCount"></span><button class="btn p sm" onclick="stepCard(1)">Next +5 XP</button></div></div></div>
+  <div class="row between"><button class="btn sm" onclick="stepCard(-1)">Prev</button><span class="sub" id="cCount"></span><button class="btn sm" onclick="stepCard(1)">Next</button></div>
+  <button class="btn p" style="width:100%;margin-top:12px" id="cPractice" onclick="closeSheet('cardsSheet');startPractice('general')">Practice what is due</button></div></div>
 
 <div class="sheet" id="briefSheet"><div class="panel"><div class="grab"></div><h2 id="briefTitle">Daily briefing</h2><div id="briefBody" class="stack" style="margin-top:12px"></div>
   <div class="row between" style="margin-top:16px"><button class="btn sm" id="notifBtn" onclick="enableNotif()">Enable reminders</button><button class="btn p" onclick="closeSheet('briefSheet')">Let's go</button></div></div></div>
 
 <div class="sheet" id="settingsSheet"><div class="panel"><div class="grab"></div><h2>Settings</h2>
   <label for="setProf">Person</label><select id="setProf" class="profSel" onchange="switchProfile(this.value)"></select>
-  <div class="row wrap" style="margin-top:8px"><button class="btn sm" onclick="closeSheet('settingsSheet');openPerson(DB.current)">Edit name or level</button><button class="btn sm" onclick="closeSheet('settingsSheet');openPerson()">Add a person</button></div>
+  <div class="row wrap" style="margin-top:8px"><button class="btn sm" onclick="closeSheet('settingsSheet');openPerson(DB.current)">Edit name or level</button><button class="btn sm" onclick="closeSheet('settingsSheet');openPerson()">Add a person</button><button class="btn sm" id="famBtn" hidden onclick="closeSheet('settingsSheet');openFamily()">Family week</button></div>
   <div id="removedBox" class="stack" style="margin-top:8px"></div>
+  <label for="setCap">Study time per day</label><select id="setCap" onchange="setCapacity(this.value)"></select>
+  <label for="setPace">Plan with my real pace</label><select id="setPace" onchange="setPace(this.value)"><option value="1">On: use how long things really take me</option><option value="0">Off: use only my own estimates</option></select>
+  <label for="setUi">Look and feel</label><select id="setUi" onchange="setUiMode(this.value)"></select>
   <label for="setVibe">Companion style</label><select id="setVibe" onchange="setVibe(this.value)"><option value="playful">Playful: animation, confetti, chatty</option><option value="calm">Calm: quiet, minimal effects</option></select>
   <label for="setTheme">Theme</label><select id="setTheme" onchange="setTheme(this.value)"><option value="auto">Match device</option><option value="light">Light</option><option value="dark">Dark</option></select>
+  <label for="aSize">Text size</label><select id="aSize" onchange="setA11y('size',this.value)"><option value="">Standard</option><option value="lg">Large</option><option value="xl">Extra large</option></select>
+  <label for="a_hc">High contrast</label><select id="a_hc" onchange="setA11y('hc',this.value)"><option value="0">Off</option><option value="1">On: stronger text and borders</option></select>
+  <label for="a_cb">Color-blind friendly colors</label><select id="a_cb" onchange="setA11y('cb',this.value)"><option value="0">Off</option><option value="1">On: blue and orange instead of green and red</option></select>
+  <label for="a_motion">Reduce motion</label><select id="a_motion" onchange="setA11y('motion',this.value)"><option value="0">Follow my device</option><option value="1">Always: no animation or confetti</option></select>
+  <label for="a_read">Easier reading</label><select id="a_read" onchange="setA11y('read',this.value)"><option value="0">Off</option><option value="1">On: more spacing between letters and lines</option></select>
   <label>Account and sync</label>
   <div id="acctBox" class="quest stack"></div>
   <label>Your data</label>
@@ -318,16 +425,43 @@ input[type=checkbox]{width:auto}
 <div class="sheet" id="histSheet"><div class="panel"><div class="grab"></div><h2>Version history</h2><p class="sub" style="margin:6px 0 10px">Automatic snapshots of this profile. Restoring one replaces what you have now, and your current version is saved first.</p><div id="histList" class="stack"></div>
   <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" onclick="closeSheet('histSheet')">Close</button></div></div></div>
 
+<div class="sheet" id="welcomeSheet" style="z-index:70"><div class="panel"><div class="grab"></div>
+  <div class="logo" style="margin-bottom:6px"><span class="mk"><i data-i="paw" data-s="20"></i></span><span class="brand">Orvi</span></div>
+  <h2 style="margin-top:10px">Welcome! Who is this for?</h2><p class="sub" style="margin-top:4px">Add a name and pick a level. Orvi adjusts to fit. You can add more people later.</p>
+  <form onsubmit="createFirst(event)">
+    <label for="wName">Name</label><input id="wName" maxlength="24" placeholder="e.g. Omar, Sofia" required autocomplete="off">
+    <label for="wLevel">Level</label><select id="wLevel"></select>
+    <label class="row" style="margin-top:14px;font-size:13px"><input type="checkbox" id="wSample"> Show me around with a few sample tasks</label>
+    <button class="btn p" style="width:100%;margin-top:18px">Get started</button>
+  </form>
+  <div id="wRestore" class="stack" style="margin-top:14px"></div></div></div>
+
+<div class="sheet" id="resetSheet"><div class="panel"><div class="grab"></div><h2>A fresh start</h2>
+  <p class="sub" id="resetLead" style="margin-top:6px"></p><div id="resetList" class="stack" style="margin-top:12px"></div>
+  <div class="row between" style="margin-top:18px"><button class="btn" onclick="closeSheet('resetSheet')">Not now</button><button class="btn p" onclick="applyReset()">Move them</button></div></div></div>
+
+<div class="sheet" id="reviewSheet"><div class="panel"><div class="grab"></div><h2>Your week</h2><p class="sub" id="revLead" style="margin-top:4px"></p>
+  <div id="revBody" class="stack" style="margin-top:12px"></div>
+  <div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn p" onclick="closeSheet('reviewSheet')">Done</button></div></div></div>
+
 <div class="sheet" id="whoSheet"><div class="panel"><div class="grab"></div><h2>Who's studying?</h2><div id="whoList" class="stack" style="margin-top:12px"></div>
   <button class="btn p" style="width:100%;margin-top:14px" onclick="closeSheet('whoSheet');openPerson()"><i data-i="plus" data-s="14"></i>Add a person</button></div></div>
 
+<div class="sheet" id="familySheet"><div class="panel"><div class="grab"></div><h2>Family week</h2><p class="sub" style="margin:6px 0 12px">Everyone on this account, next 7 days. Tap a name to switch to them.</p>
+  <div id="famBody" class="stack"></div>
+  <div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn p" onclick="closeSheet('familySheet')">Done</button></div></div></div>
+<div class="sheet" id="shareSheet"><div class="panel"><div class="grab"></div><h2 id="shTitle">Share with a parent or tutor</h2>
+  <p class="sub" style="margin:6px 0 12px">Anyone with the link can see upcoming tasks, what is overdue and how much got finished. They cannot change anything, and they never see notes, links, grades or other people. Turn it off any time.</p>
+  <div id="shBody" class="stack"></div>
+  <div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn p" onclick="closeSheet('shareSheet')">Done</button></div></div></div>
 <div class="sheet" id="unsubSheet" style="z-index:95"><div class="panel"><div class="grab"></div><h2>Stop briefing emails?</h2><p class="sub" style="margin-top:8px">You will no longer get the morning and evening emails. You can turn them back on any time in Settings.</p>
   <div class="row between" style="margin-top:18px"><button class="btn" onclick="closeSheet('unsubSheet')">Keep them</button><button class="btn p" onclick="cloudUnsub()">Stop emails</button></div></div></div>
 
 <div class="sheet" id="personSheet"><div class="panel"><div class="grab"></div><h2 id="pTitle">Add a person</h2>
   <form onsubmit="savePerson(event)"><input type="hidden" id="pKey">
     <label for="pName">Name</label><input id="pName" maxlength="24" placeholder="e.g. Omar, Sofia" required autocomplete="off">
-    <label for="pLevel">Level</label><select id="pLevel"><option value="college">College</option><option value="highschool">High school</option><option value="middleschool">Middle school</option></select>
+    <label for="pLevel">Level</label><select id="pLevel"></select>
+    <label for="pUi">Look and feel</label><select id="pUi"></select>
     <label class="row" id="pSampleRow" style="margin-top:14px;font-size:13px"><input type="checkbox" id="pSample"> Start with sample courses and tasks</label>
     <div class="row between" style="margin-top:18px"><button type="button" class="btn" id="pRemove" style="color:var(--bad)" onclick="removePerson()">Remove</button><div class="row"><button type="button" class="btn" onclick="closeSheet('personSheet')">Cancel</button><button class="btn p">Save</button></div></div>
   </form></div></div>
@@ -388,7 +522,10 @@ const IC = {
   list:'<path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/>',
   cards:'<rect x="3" y="7" width="14" height="12" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>',
   bag:'<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
-  chevron:'<path d="M6 9l6 6 6-6"/>'
+  chevron:'<path d="M6 9l6 6 6-6"/>',
+  repeat:'<path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  note:'<path d="M5 3h14v14l-4 4H5z"/><path d="M15 21v-4h4M8 8h8M8 12h5"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.700 0l3-3a4 4 0 0 0-5.700-5.700l-1 1"/><path d="M14 10a4 4 0 0 0-5.700 0l-3 3a4 4 0 0 0 5.700 5.700l1-1"/>'
 };
 function ico(n, s = 18) { return `<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n] || ''}</svg>`; }
 function hydrateIcons(root = document) { root.querySelectorAll('[data-i]').forEach(e => { e.outerHTML = ico(e.dataset.i, +e.dataset.s || 18); }); }
@@ -451,10 +588,20 @@ function avatar(id, mood, acc, size) {
 
 /* ---------- Storage: crash-safe, with automatic backup copy ---------- */
 const KEY = 'orvi.v1', LEGACY = ['pounce.v1', 'cadenza.v1'];
-const LEVELS = { college:'College', highschool:'High school', middleschool:'Middle school' };
+const LEVELS = { elementary:'Elementary', middleschool:'Middle school', highschool:'High school', college:'College', grad:'Grad school', professional:'Work / Professional' };
+const LEVEL_UI = { elementary:'kid', middleschool:'standard', highschool:'standard', college:'standard', grad:'standard', professional:'pro' };
+const UIS = { kid:'Kid friendly', standard:'Standard', pro:'Professional' };
+const VOC = {
+  kid:      { Now:"Let's do this one", Courses:'Subjects', Course:'Subject', Exams:'Tests', assignment:'Homework', quiz:'Quiz', reading:'Reading', test:'Test', video:'Video' },
+  standard: { Now:'Do this now', Courses:'Courses', Course:'Course', Exams:'Exams', assignment:'Assignment', quiz:'Quiz', reading:'Reading', test:'Test', video:'Video' },
+  pro:      { Now:'Next up', Courses:'Projects', Course:'Project', Exams:'Deadlines', assignment:'Task', quiz:'Check-in', reading:'Read', test:'Milestone', video:'Watch', Buddy:'Companion' }
+};
 const levelOf = k => { const p = DB.profiles[k]; return (p && LEVELS[p.level]) ? p.level : (LEVELS[k] ? k : 'college'); };
 const personName = k => (DB.profiles[k] && DB.profiles[k].name) || LEVELS[levelOf(k)];
 const profLabel = k => (DB.profiles[k] && DB.profiles[k].name) ? `${DB.profiles[k].name} · ${LEVELS[levelOf(k)]}` : LEVELS[levelOf(k)];
+const uiOf = k => (DB.profiles[k] && DB.profiles[k].ui) || LEVEL_UI[levelOf(k)] || 'standard';
+const curUi = () => (DB && DB.current && DB.profiles[DB.current]) ? uiOf(DB.current) : 'standard';
+const V = k => (VOC[curUi()] || VOC.standard)[k] || k;
 const activeKeys = () => Object.keys(DB.profiles).filter(k => !DB.profiles[k].archived);
 const PALETTE = ['#6c5ce7','#ff8a4c','#10b981','#ec4899','#0ea5e9','#f59e0b'];
 function seed(level, name, withSample) {
@@ -463,6 +610,9 @@ function seed(level, name, withSample) {
   const S = {
     college:{ courses:[['Strategic Entrepreneurship','MBA 553','Prof. Harrison'],['Corporate Finance','FIN 520','Prof. Miller'],['Data Analytics','ACC 505','Prof. Davis']], tasks:[['Module 7 theory analysis',0,'assignment',1,60,'high'],['Valuation problem set #3',1,'assignment',2,90,'urgent'],['Read ch. 4: Regression',2,'reading',3,45,'medium'],['Lecture: Business models',0,'video',4,30,'low'],['Quiz: Capital structure',1,'quiz',5,30,'medium'],['Midterm review',1,'test',6,120,'high']], exam:['Corporate Finance midterm',11], events:[['Strategic Entrepreneurship',[0,2],'09:00','10:30','Zoom'],['Corporate Finance',[1,3],'09:00','10:30','Zoom']], vibe:'calm' },
     highschool:{ courses:[['AP Calculus BC','MATH 401','Mr. Vance'],['AP Physics C','SCI 302','Dr. Sterling'],['AP English Lit','ENG 410','Ms. Ortiz']], tasks:[['Series convergence worksheet',0,'assignment',1,50,'high'],['Lab report: Torque',1,'assignment',3,75,'medium'],['Read Act 3',2,'reading',2,40,'medium'],['Unit 8 quiz',0,'quiz',4,30,'high'],['Watch: Rotational motion',1,'video',3,25,'low']], exam:['AP Calc Unit 8 test',9], events:[['AP Calculus',[0,1,2,3,4],'08:30','09:20','Rm 214'],['AP Physics',[0,2,4],'10:00','10:50','Lab B'],['Practice / club',[1,3],'15:30','17:00','Gym']], vibe:'playful' },
+    elementary:{ courses:[['Math','Grade 3','Ms. Rivera'],['Reading','Grade 3','Mr. Cho'],['Science','Grade 3','Ms. Patel']], tasks:[['Multiplication practice',0,'assignment',1,15,'medium'],['Read for 20 minutes',1,'reading',1,20,'high'],['Spelling quiz',1,'quiz',3,10,'medium'],['Plant journal',2,'assignment',2,15,'low'],['Watch: The water cycle',2,'video',3,10,'low']], exam:['Math unit test',8], events:[['Math',[0,1,2,3,4],'09:00','09:45','Room 4'],['Reading',[0,2,4],'10:30','11:15','Room 4']], vibe:'playful' },
+    grad:{ courses:[['Research Methods','GRAD 601','Dr. Alvarez'],['Thesis Seminar','GRAD 690','Dr. Okafor'],['Statistics II','STAT 612','Prof. Lindqvist']], tasks:[['Literature review draft',1,'assignment',3,120,'high'],['Read: two articles for seminar',1,'reading',2,90,'medium'],['Problem set 4',2,'assignment',1,75,'urgent'],['Watch: Methods lecture',0,'video',4,45,'low'],['Methods quiz',0,'quiz',5,30,'medium']], exam:['Statistics midterm',12], events:[['Thesis Seminar',[2],'15:00','17:00','Hall 3'],['Statistics II',[1,3],'10:00','11:15','Rm 210']], vibe:'calm' },
+    professional:{ courses:[['Q4 Planning','PRJ-12','Me'],['Product Launch','PRJ-08','Team'],['Learning','DEV','Me']], tasks:[['Draft the Q4 plan',0,'assignment',1,90,'high'],['Review the launch brief',1,'reading',1,30,'medium'],['Prep for stakeholder check-in',1,'assignment',2,45,'urgent'],['Watch: Industry briefing',2,'video',4,30,'low'],['Skills check-in',2,'quiz',5,20,'low']], exam:['Quarterly review',10], events:[['Team standup',[0,1,2,3,4],'09:30','09:45','Zoom'],['Planning sync',[2],'14:00','15:00','Room B']], vibe:'calm' },
     middleschool:{ courses:[['Life Science','SCI 8','Ms. Gable'],['Algebra 1','MATH 8','Mr. Ross'],['Language Arts','ELA 8','Ms. Kim']], tasks:[['Cell diagram labeling',0,'assignment',1,30,'medium'],['Algebra practice p.112',1,'assignment',2,30,'high'],['Read chapter 5',2,'reading',3,25,'low'],['Vocab quiz',2,'quiz',4,20,'medium'],['Watch: Cell division',0,'video',3,15,'low']], exam:['Algebra unit test',7], events:[['Algebra',[0,1,2,3,4],'09:00','09:50','Rm 12'],['Life Science',[1,3],'11:00','11:50','Rm 8']], vibe:'playful' }
   }[level];
   if (!withSample) { S.courses = []; S.tasks = []; S.events = []; S.exam = null; }
@@ -477,8 +627,10 @@ function seed(level, name, withSample) {
 }
 // Fills in anything missing so new features or companions never wipe existing progress.
 function normalize(p) {
-  const D = {name:'',level:'',archived:false,metaAt:0,deleted:{},courses:[],tasks:[],exams:[],events:[],xp:0,coins:0,activeDays:[],freezes:0,freezeUsed:[],bestStreak:0,focusLog:[],completedTotal:0,scans:0,unlocked:[],xpLog:{},cards:'',lastBrief:'',notifSent:'',claimed:{},vibe:'playful'};
+  const D = {name:'',level:'',ui:'',capacity:0,lastReview:'',lastReset:null,usePace:true,cardBox:{},rot:{on:false,anchor:'',letter:'A',off:[]},archived:false,metaAt:0,deleted:{},courses:[],tasks:[],exams:[],events:[],xp:0,coins:0,activeDays:[],freezes:0,freezeUsed:[],bestStreak:0,focusLog:[],completedTotal:0,scans:0,unlocked:[],xpLog:{},cards:'',lastBrief:'',notifSent:'',claimed:{},vibe:'playful'};
   Object.keys(D).forEach(k => { if (p[k] === undefined || p[k] === null) p[k] = JSON.parse(JSON.stringify(D[k])); });
+  p.rot = Object.assign({on:false, anchor:'', letter:'A', off:[]}, p.rot || {}); if (!Array.isArray(p.rot.off)) p.rot.off = [];
+  p.exams.forEach(e => { if (!Array.isArray(e.topics)) e.topics = []; if (typeof e.cards !== 'string') e.cards = ''; if (!e.courseId) e.courseId = ''; });
   p.comp = Object.assign({species:'dog', name:'Biscuit', species_unlocked:['dog'], owned:[], equipped:''}, p.comp || {});
   if (!Array.isArray(p.comp.species_unlocked)) p.comp.species_unlocked = ['dog'];
   if (!p.comp.species_unlocked.includes('dog')) p.comp.species_unlocked.push('dog');
@@ -488,17 +640,17 @@ function normalize(p) {
   return p;
 }
 function readKey(k) { try { const r = localStorage.getItem(k); if (!r) return null; const o = JSON.parse(r); return o && o.profiles && typeof o.profiles === 'object' ? o : null; } catch (e) { return null; } }
-function freshDB() { const d = {v:1, current:'college', theme:'auto', profiles:{}}; d.profiles.college = seed('college'); return d; }
+function freshDB() { return {v:1, current:'', theme:'auto', profiles:{}}; }
 function tomb(id) { P().deleted[id] = Date.now(); }
 function loadDB() {
   let db = readKey(KEY), note = '';
   if (!db) { db = readKey(KEY + '.bak'); if (db) note = 'Restored your progress from the automatic backup.'; }
   if (!db) { for (const k of LEGACY) { const old = readKey(k); if (old) { db = old; note = 'Imported your earlier progress.'; break; } } }
-  if (!db) { db = {v:1, current:'college', theme:'auto', profiles:{}}; db.profiles.college = seed('college'); }
-  if (!db.profiles[db.current] || db.profiles[db.current].archived) { const ok = Object.keys(db.profiles).find(k => !db.profiles[k].archived); db.current = ok || Object.keys(db.profiles)[0] || 'college'; }
-  if (!db.profiles[db.current]) db.profiles[db.current] = seed(LEVELS[db.current] ? db.current : 'college');
+  if (!db) db = freshDB();
+  if (!db.profiles[db.current] || db.profiles[db.current].archived) { const ok = Object.keys(db.profiles).find(k => !db.profiles[k].archived); db.current = ok || ''; }
   Object.keys(db.profiles).forEach(k => normalize(db.profiles[k]));
   db.theme = db.theme || 'auto';
+  db.a11y = Object.assign({size:'', hc:false, cb:false, motion:false, read:false}, db.a11y || {});
   if (note) setTimeout(() => toast(note), 600);
   return db;
 }
@@ -524,7 +676,8 @@ window.addEventListener('beforeunload', saveNow);
 document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
 window.addEventListener('storage', e => { if (e.key === KEY && e.newValue) { const db = readKey(KEY); if (db) { DB = db; Object.keys(DB.profiles).forEach(k => normalize(DB.profiles[k])); renderAll(); } } });
 try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
-const P = () => DB.profiles[DB.current];
+let GHOST = null;   // stand-in while nobody has been added yet, so screens can draw behind the welcome sheet
+const P = () => DB.profiles[DB.current] || (GHOST = GHOST || normalize({}));
 const courseOf = id => P().courses.find(c => c.id === id);
 const colorOf = id => PALETTE[Math.max(0, P().courses.findIndex(c => c.id === id)) % PALETTE.length];
 
@@ -556,7 +709,7 @@ function checkProgress() {
   ACHS.forEach(a => { if (!p.unlocked.includes(a.id) && a.test()) { p.unlocked.push(a.id); addXp(40); toast(`Achievement: ${a.t}`); burst(); } });
   Object.keys(COMPANIONS).forEach(k => { if (!p.comp.species_unlocked.includes(k) && COMPANIONS[k].unlock.test()) { p.comp.species_unlocked.push(k); toast(`New companion unlocked: ${COMPANIONS[k].label}!`); burst(120); } });
 }
-function burst(n = 70) { try { if (P().vibe === 'playful' && typeof confetti === 'function') confetti({particleCount:n, spread:70, origin:{y:.7}}); } catch (e) {} }
+function burst(n = 70) { try { if (P().vibe === 'playful' && !(DB.a11y && DB.a11y.motion) && typeof confetti === 'function') confetti({particleCount:n, spread:70, origin:{y:.7}}); } catch (e) {} }
 const weekDone = () => { const [m,s] = weekRange(); return P().tasks.filter(t => t.completedAt && t.completedAt >= m && t.completedAt <= s && t.status==='completed'); };
 const weekFocus = () => { const [m,s] = weekRange(); return P().focusLog.filter(f => f.date >= m && f.date <= s); };
 const QUESTS = [
@@ -572,6 +725,9 @@ const comp = () => P().comp;
 function say() {
   const p = P(), t0 = todayStr(), pend = sortedPending(), over = pend.filter(t => t.dueDate < t0), today = pend.filter(t => t.dueDate === t0), pl = p.vibe === 'playful', n = comp().name;
   if (!pend.length) return pl ? `${n} is all caught up. Want to get ahead?` : 'Everything is done. Nice work.';
+  const heavy = (typeof workloadAlerts === 'function') ? workloadAlerts()[0] : null;
+  if (heavy && over.length < 3) return pl ? `${dayName(heavy.date)} looks packed. Let's get a head start on "${heavy.head.title}".` : `${dayName(heavy.date)} is heavy. Start early on "${heavy.head.title}".`;
+  if (over.length >= 3) return pl ? `A few things slipped, and that's okay. Try a fresh start, then one small task.` : `${over.length} are overdue. Consider a fresh start.`;
   if (over.length) return pl ? `${over.length} overdue. No stress, let's knock out "${over[0].title}" first.` : `${over.length} overdue. Start with "${over[0].title}".`;
   if (today.length) return pl ? `${today.length} due today. Start with "${today[0].title}", I'll cheer you on!` : `${today.length} due today, starting with "${today[0].title}".`;
   if (mood() === 'nap') return pl ? `${n} was napping. Finish one task and we're back on track.` : 'A quick task today keeps your streak alive.';
@@ -587,35 +743,131 @@ function planFor(date) {
   let ws = wk ? 15*60+30 : 10*60, we = wk ? 21*60 : 20*60;
   if (date === todayStr()) { const n = new Date(); ws = Math.max(ws, Math.ceil((n.getHours()*60+n.getMinutes())/5)*5); }
   let free = [[ws, we]];
-  P().events.filter(e => e.days.includes(dow)).map(e => [toM(e.start), toM(e.end)]).forEach(([bs,be]) => {
+  P().events.filter(e => eventOn(e, date)).map(e => [toM(e.start), toM(e.end)]).forEach(([bs,be]) => {
     free = free.flatMap(([fs,fe]) => { if (be <= fs || bs >= fe) return [[fs,fe]]; const o = []; if (bs > fs) o.push([fs,bs]); if (be < fe) o.push([be,fe]); return o; }); });
   const blocks = [], over = [];
   sortedPending().filter(t => t.dueDate <= addDays(date, 2)).forEach(t => {
-    const i = free.findIndex(([fs,fe]) => fe - fs >= t.duration);
+    const i = free.findIndex(([fs,fe]) => fe - fs >= est(t));
     if (i < 0) { over.push(t); return; }
-    const [fs, fe] = free[i]; blocks.push({task:t, start:fs, end:fs+t.duration});
-    free[i] = [fs + t.duration + 10, fe]; if (free[i][0] >= free[i][1]) free.splice(i,1);
+    const [fs, fe] = free[i]; blocks.push({task:t, start:fs, end:fs+est(t)});
+    free[i] = [fs + est(t) + 10, fe]; if (free[i][0] >= free[i][1]) free.splice(i,1);
   });
   return {blocks, over, windowEnd: we};
 }
-function addTask(o) { P().tasks.push({id:uid(), courseId:o.courseId || P().courses[0]?.id, title:o.title, taskType:o.taskType||'assignment', dueDate:o.dueDate, duration:o.duration||45, priority:o.priority||'medium', status:'pending', actualMins:0, completedAt:null}); }
+/* ---------- Learning your real pace ---------- */
+// Compares what you planned with what you logged on finished tasks, so plans use realistic minutes.
+let PACE = null, PACE_KEY = '';
+function paceTable() {
+  const p = P(), key = DB.current + '|' + p.tasks.length + '|' + p.completedTotal + '|' + p.tasks.reduce((a, t) => a + (t.actualMins || 0), 0);
+  if (PACE && PACE_KEY === key) return PACE; PACE_KEY = key;
+  const g = {}, add = (k, r) => (g[k] = g[k] || []).push(r);
+  p.tasks.forEach(t => { if (t.status === 'completed' && t.actualMins >= 5 && t.duration > 0) { const r = t.actualMins / t.duration; add('c:' + t.courseId + ':' + t.taskType, r); add('t:' + t.taskType, r); add('all', r); } });
+  const med = a => { const b = [...a].sort((x, y) => x - y), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m-1] + b[m]) / 2; };
+  PACE = {}; Object.keys(g).forEach(k => { PACE[k] = {n: g[k].length, r: Math.min(2.5, Math.max(.5, med(g[k])))}; });
+  return PACE;
+}
+// Best matching ratio: this course and type, then this type, then everything (needs a few finished tasks each).
+function paceFor(t) {
+  const T = paceTable(), c = T['c:' + t.courseId + ':' + t.taskType], ty = T['t:' + t.taskType], all = T['all'];
+  const pick = (c && c.n >= 3) ? c : (ty && ty.n >= 3) ? ty : (all && all.n >= 5) ? all : null;
+  return pick && Math.abs(pick.r - 1) >= .15 ? pick : null;
+}
+function est(t) {
+  const d = t.duration || 30; if (P().usePace === false) return d;
+  const pk = paceFor(t); return pk ? Math.max(5, Math.round(d * pk.r / 5) * 5) : d;
+}
+function paceInsights() {
+  const T = paceTable(), out = [];
+  Object.keys(T).filter(k => k.startsWith('t:') && T[k].n >= 3 && Math.abs(T[k].r - 1) >= .25).forEach(k => out.push({type: k.slice(2), r: T[k].r, n: T[k].n}));
+  return out.sort((a, b) => Math.abs(b.r - 1) - Math.abs(a.r - 1));
+}
+function addTask(o) { P().tasks.push({id:uid(), courseId:o.courseId || P().courses[0]?.id, title:o.title, taskType:o.taskType||'assignment', dueDate:o.dueDate, duration:o.duration||45, priority:o.priority||'medium', status:'pending', actualMins:0, completedAt:null, repeat:o.repeat||'', notes:'', link:'', steps:[]}); }
 function toggleTask(id) {
   const t = P().tasks.find(x => x.id === id); if (!t) return;
   if (t.status !== 'completed') {
-    t.status = 'completed'; t.completedAt = todayStr();
+    t.status = 'completed'; t.completedAt = todayStr(); t.mAt = Date.now();
     const early = daysBetween(t.completedAt, t.dueDate), bonus = {urgent:15,high:10,medium:5,low:0}[t.priority] + (early >= 2 ? 15 : early >= 0 ? 5 : 0);
-    addXp(20 + bonus, 12); P().completedTotal++; markActive(); burst(50); toast(`+${20+bonus} XP${early >= 2 ? ' · early bird bonus' : ''}`);
-  } else { t.status = 'pending'; t.completedAt = null; P().completedTotal = Math.max(0, P().completedTotal-1); P().xp = Math.max(0, P().xp - 30); P().coins = Math.max(0, P().coins - 12); }
+    spawnNext(t); addXp(20 + bonus, 12); P().completedTotal++; markActive(); burst(50); toast(`+${20+bonus} XP${early >= 2 ? ' · early bird bonus' : ''}`);
+  } else { undoNext(t); t.status = 'pending'; t.completedAt = null; t.mAt = Date.now(); P().completedTotal = Math.max(0, P().completedTotal-1); P().xp = Math.max(0, P().xp - 30); P().coins = Math.max(0, P().coins - 12); }
   checkProgress(); save(); renderAll();
 }
+
+/* ---------- Task details, steps, repeating ---------- */
+function nextDue(t) {
+  const d = parseYmd(t.dueDate), r = t.repeat;
+  if (r === 'daily') d.setDate(d.getDate()+1);
+  else if (r === 'weekdays') { do d.setDate(d.getDate()+1); while ([0,6].includes(d.getDay())); }
+  else if (r === 'weekly') d.setDate(d.getDate()+7);
+  else if (r === 'monthly') { const day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth()+1); d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth()+1, 0).getDate())); }
+  else return null;
+  return ymd(d);
+}
+// The next copy gets a predictable id (series@date), so two devices finishing the same task never create two copies.
+function spawnNext(t) {
+  if (!t.repeat) return;
+  let due = nextDue(t), guard = 0; if (!due) return;
+  const base = Object.assign({}, t, {dueDate:due});
+  while (due < todayStr() && guard++ < 400) { base.dueDate = due; due = nextDue(base); }
+  const series = t.series || t.id, base0 = series + '@' + due, p = P();
+  if (p.tasks.some(x => x.id === base0)) { t.nextId = base0; return; }
+  let id = base0, k = 1; while (p.deleted[id]) id = base0 + '#' + (++k);   // an undone copy stays deleted, so a redo gets a fresh id
+  p.tasks.push({id, series, courseId:t.courseId, title:t.title, taskType:t.taskType, dueDate:due, duration:t.duration, priority:t.priority, status:'pending', actualMins:0, completedAt:null, repeat:t.repeat, notes:t.notes||'', link:t.link||'', steps:(t.steps||[]).map(x => ({id:x.id, text:x.text, done:false})), mAt:Date.now()});
+  t.nextId = id; if (!t.series) t.series = series;
+}
+function undoNext(t) {
+  if (!t.nextId) return;
+  const n = P().tasks.find(x => x.id === t.nextId);
+  if (n && n.status !== 'completed' && !n.actualMins && !(n.steps||[]).some(s => s.done)) { tomb(n.id); P().tasks = P().tasks.filter(x => x !== n); }
+  delete t.nextId;
+}
+let detailId = null;
+const taskById = id => P().tasks.find(x => x.id === id);
+function openDetail(id) {
+  const t = taskById(id); if (!t) return; detailId = id;
+  $('dCourse').innerHTML = P().courses.map(c => `<option value="${c.id}">${esc(c.code||'')} ${esc(c.name)}</option>`).join('');
+  $('dTitle').value = t.title; $('dCourse').value = t.courseId; $('dType').value = t.taskType; $('dDue').value = t.dueDate; $('dDur').value = t.duration;
+  $('dScore').value = t.score ?? ''; $('dTotal').value = t.total ?? ''; $('dPri').value = t.priority; $('dRep').value = t.repeat || ''; $('dNote').value = t.notes || ''; $('dLink').value = t.link || ''; $('dNewStep').value = '';
+  renderSteps(); showPaceHint(t); openSheet('detailSheet');
+}
+function showPaceHint(t) {
+  const box = $('dPace'), pk = paceFor(t), e = est(t); box.innerHTML = '';
+  if (!pk || e === t.duration) return;
+  box.innerHTML = `Tasks like this usually take you about <b>${fmtMins(e)}</b> (from ${pk.n} you finished). <button type="button" class="btn sm" onclick="$('dDur').value=${e};this.parentNode.textContent='Updated. Save to keep it.'">Use ${e} min</button>`;
+}
+function renderSteps() {
+  const t = taskById(detailId); if (!t) return; const st = t.steps || [], d = st.filter(x => x.done).length;
+  $('dStepsNote').textContent = st.length ? `${d} of ${st.length} done` : '';
+  $('dSteps').innerHTML = st.map(x => `<div class="row" style="gap:10px"><button type="button" class="chk ${x.done?'on':''}" style="width:24px;height:24px" onclick="toggleStep('${x.id}')" aria-label="${x.done?'Mark step not done':'Mark step done'}">${x.done?ico('check',14):''}</button><span style="flex:1;${x.done?'text-decoration:line-through;opacity:.6':''}">${esc(x.text)}</span><button type="button" class="btn sm" style="color:var(--mute)" onclick="delStep('${x.id}')" aria-label="Remove step">${ico('x',13)}</button></div>`).join('');
+}
+function touch(t) { t.mAt = Date.now(); save(); renderSteps(); renderAll(); }
+function addStep() { const t = taskById(detailId), v = $('dNewStep').value.trim(); if (!t || !v) return; (t.steps = t.steps || []).push({id:uid(), text:v, done:false}); $('dNewStep').value = ''; touch(t); $('dNewStep').focus(); }
+function toggleStep(sid) { const t = taskById(detailId), x = t && (t.steps||[]).find(y => y.id === sid); if (!x) return; x.done = !x.done; touch(t); }
+function delStep(sid) { const t = taskById(detailId); if (!t) return; t.steps = (t.steps||[]).filter(y => y.id !== sid); touch(t); }
+const numOrNull = v => { v = parseFloat(v); return isFinite(v) && v >= 0 ? v : null; };
+function safeLink(u) { u = String(u||'').trim(); if (!u) return ''; if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = 'https://' + u; return /^https?:\/\//i.test(u) ? u : ''; }
+function saveDetail(e) {
+  e.preventDefault(); const t = taskById(detailId); if (!t) return closeSheet('detailSheet');
+  const wasDue = t.dueDate; Object.assign(t, {title:$('dTitle').value.trim() || t.title, courseId:$('dCourse').value, taskType:$('dType').value, dueDate:$('dDue').value || t.dueDate, duration:parseInt($('dDur').value) || t.duration, priority:$('dPri').value, repeat:$('dRep').value, notes:$('dNote').value.trim(), link:safeLink($('dLink').value), score:numOrNull($('dScore').value), total:numOrNull($('dTotal').value), mAt:Date.now()});
+  if (t.dueDate !== wasDue && !t.origDue) t.origDue = wasDue;
+  save(); closeSheet('detailSheet'); renderAll(); toast('Saved.');
+}
 function deleteTask(id) { if (confirm('Delete this task?')) { tomb(id); P().tasks = P().tasks.filter(t => t.id !== id); save(); renderAll(); } }
+function extras(t) {
+  const st = t.steps || [], o = [];
+  if (st.length) o.push(`<span title="Steps">${ico('list',13)}${st.filter(x => x.done).length}/${st.length}</span>`);
+  if (t.repeat) o.push(`<span title="Repeats">${ico('repeat',13)}</span>`);
+  if (t.notes) o.push(`<span title="Has notes">${ico('note',13)}</span>`);
+  if (t.link) o.push(`<a href="${esc(safeLink(t.link))}" target="_blank" rel="noopener noreferrer" style="color:var(--acc);display:inline-flex" aria-label="Open link">${ico('link',13)}</a>`);
+  return o.join('');
+}
 function taskHTML(t) {
   const c = courseOf(t.courseId), done = t.status === 'completed', t0 = todayStr(), late = !done && t.dueDate < t0;
   const when = late ? `<b style="color:var(--bad)">Overdue ${daysBetween(t.dueDate,t0)}d</b>` : t.dueDate === t0 ? '<b style="color:var(--warn)">Due today</b>' : fmtDate(t.dueDate);
+  const was = (t.origDue && t.origDue !== t.dueDate && !done) ? ` <span class="sub">(was ${fmtDate(t.origDue)})</span>` : '';
   return `<div class="task ${done?'done':''} ${late?'late':''}">
     <span class="tile" style="background:${TYPE_COL[t.taskType]||'#6c5ce7'}" title="${esc(t.taskType)}">${ico(IC[t.taskType]?t.taskType:'assignment', 20)}</span>
-    <div style="flex:1;min-width:0"><div class="tt" style="${done?'text-decoration:line-through':''}">${esc(t.title)}</div>
-    <div class="meta"><span><i class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${colorOf(t.courseId)}"></i>${esc(c?c.code||c.name:'General')}</span><span>${ico('calendar',13)}${when}</span><span>${ico('clock',13)}${t.duration}m${t.actualMins?` · ${t.actualMins}m logged`:''}</span><span class="tag ${PC[t.priority]}">${t.priority}</span></div></div>
+    <div style="flex:1;min-width:0"><div class="tt" style="${done?'text-decoration:line-through':''}"><button class="lnk" onclick="openDetail('${t.id}')" aria-label="Open details for ${esc(t.title)}">${esc(t.title)}</button></div>
+    <div class="meta"><span><i class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${colorOf(t.courseId)}"></i>${esc(c?c.code||c.name:'General')}</span><span>${ico('calendar',13)}${when}${was}</span><span>${ico('clock',13)}${t.duration}m${(!done && est(t) !== t.duration) ? ` (~${est(t)}m for you)` : ''}${t.actualMins?` · ${t.actualMins}m logged`:''}</span><span class="tag ${PC[t.priority]}">${t.priority}</span>${extras(t)}</div></div>
     <button class="chk ${done?'on':''}" onclick="toggleTask('${t.id}')" aria-label="Mark ${done?'not done':'done'}">${done?ico('check',15):''}</button>
     ${done ? '' : `<button class="btn sm" onclick="startFocus('${t.id}')" aria-label="Focus on this">${ico('play',13)}</button>`}
     <button class="btn sm" style="color:var(--mute)" onclick="deleteTask('${t.id}')" aria-label="Delete">${ico('trash',14)}</button></div>`;
@@ -624,21 +876,23 @@ function taskHTML(t) {
 /* ---------- Render ---------- */
 let tab = 'home', taskFilter = 'week', selDay = todayStr();
 const NAV = [['home','home','Home'],['plan','calendar','Plan'],['courses','book','Courses'],['focus','timer','Focus'],['buddy','paw','Buddy']];
+const navLbl = l => V(l);
 function buildChrome() {
   document.title = APP_NAME; document.querySelectorAll('.brand').forEach(e => e.textContent = APP_NAME);
-  if (!DB.profiles[DB.current] || DB.profiles[DB.current].archived) DB.current = activeKeys()[0] || DB.current;
+  if (!DB.profiles[DB.current] || DB.profiles[DB.current].archived) DB.current = activeKeys()[0] || '';
+  applyUi(); fillSelects(); if ($('famBtn')) $('famBtn').hidden = activeKeys().length < 2;
   const opts = activeKeys().map(k => `<option value="${k}">${esc(profLabel(k))}</option>`).join('');
   document.querySelectorAll('.profSel').forEach(s => { s.innerHTML = opts; s.value = DB.current; });
-  $('sideNav').innerHTML = NAV.map(([id,i,l]) => `<button class="navb" data-t="${id}" onclick="go('${id}')">${ico(i,20)}${l}</button>`).join('');
-  $('bottomNav').innerHTML = NAV.map(([id,i,l]) => `<button data-t="${id}" onclick="go('${id}')"><span class="pill">${ico(i,22)}</span>${l}</button>`).join('');
+  $('sideNav').innerHTML = NAV.map(([id,i,l]) => `<button class="navb" data-t="${id}" onclick="go('${id}')">${ico(i,20)}${navLbl(l)}</button>`).join('');
+  $('bottomNav').innerHTML = NAV.map(([id,i,l]) => `<button data-t="${id}" onclick="go('${id}')"><span class="pill">${ico(i,22)}</span>${navLbl(l)}</button>`).join('');
   $('modeTabs').innerHTML = Object.entries(MODES).map(([k,m]) => `<button data-m="${k}" onclick="setMode('${k}')">${m.l}</button>`).join('');
   $('vDays').innerHTML = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i) => `<label class="chip" style="margin:0;cursor:pointer"><input type="checkbox" class="vd" value="${i}"> ${d}</label>`).join('');
-  $('setVibe').value = P().vibe; $('setTheme').value = DB.theme; applyTheme();
+  $('setVibe').value = P().vibe; $('setUi').value = P().ui || ''; $('setCap').value = String(P().capacity || 0); $('setPace').value = P().usePace === false ? '0' : '1'; $('setTheme').value = DB.theme; applyTheme(); applyVocab(); fillA11y();
 }
-function applyTheme() { const dark = DB.theme === 'dark' || (DB.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); document.documentElement.dataset.theme = dark ? 'dark' : 'light'; document.body.classList.toggle('calm', P().vibe === 'calm'); }
+function applyTheme() { applyA11y(); const dark = DB.theme === 'dark' || (DB.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); document.documentElement.dataset.theme = dark ? 'dark' : 'light'; document.body.classList.toggle('calm', P().vibe === 'calm'); applyUi(); }
 function go(t) { tab = t; ['home','plan','courses','focus','buddy'].forEach(x => $('v-'+x).hidden = x !== t);
   document.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t)); window.scrollTo({top:0}); }
-function renderAll() { autoFreeze(); renderHome(); renderPlan(); renderCourses(); renderFocus(); renderBuddy(); renderWho(); }
+function renderAll() { autoFreeze(); renderHome(); renderPlan(); renderCourses(); renderFocus(); renderBuddy(); renderWho(); renderSmart(); renderLoadWeek(); ensureOnboard(); }
 
 function renderHome() {
   const p = P(), li = levelInfo(), c = comp();
@@ -648,15 +902,15 @@ function renderHome() {
   $('heroStreak').innerHTML = `${ico('flame',14)}${currentStreak()} day${currentStreak()===1?'':'s'}`; $('heroCoins').innerHTML = `${ico('coin',14)}${p.coins}`;
   $('heroBar').style.width = (li.into/LEVEL_XP*100) + '%';
   const [m,s] = weekRange(); $('weekRange').textContent = `${fmtDate(m)} – ${fmtDate(s)}`;
-  const wt = weekTasks(), done = wt.filter(t => t.status==='completed').length, left = wt.length - done, mins = wt.filter(t => t.status!=='completed').reduce((a,t) => a+t.duration, 0), pct = wt.length ? Math.round(done/wt.length*100) : 0;
+  const wt = weekTasks(), done = wt.filter(t => t.status==='completed').length, left = wt.length - done, mins = wt.filter(t => t.status!=='completed').reduce((a,t) => a+est(t), 0), pct = wt.length ? Math.round(done/wt.length*100) : 0;
   $('wPct').textContent = pct + '%'; $('wRing').style.strokeDashoffset = 264*(1-pct/100);
   $('sItems').textContent = wt.length; $('sLeft').textContent = left; $('sTime').textContent = fmtMins(mins);
   const types = {}; wt.filter(t => t.status!=='completed').forEach(t => types[t.taskType] = (types[t.taskType]||0)+1);
-  $('typeCounts').innerHTML = Object.entries(types).map(([k,v]) => `<span class="chip"><span style="color:${TYPE_COL[k]}">${ico(IC[k]?k:'assignment',14)}</span>${v} ${k}${v>1?'s':''}</span>`).join('') || '<span class="sub">Nothing left this week. Nice.</span>';
+  $('typeCounts').innerHTML = Object.entries(types).map(([k,v]) => `<span class="chip"><span style="color:${TYPE_COL[k]}">${ico(IC[k]?k:'assignment',14)}</span>${v} ${V(k).toLowerCase()}${v>1?'s':''}</span>`).join('') || '<span class="sub">Nothing left this week. Nice.</span>';
   let date = todayStr(), plan = planFor(date); const nowM = new Date().getHours()*60 + new Date().getMinutes(); let label = 'today';
   if (nowM >= plan.windowEnd - 15 && !plan.blocks.length) { date = addDays(date,1); plan = planFor(date); label = 'tomorrow'; }
   $('planNote').textContent = label === 'today' ? 'Suggested blocks' : 'Tomorrow';
-  $('planList').innerHTML = (plan.blocks.map(b => `<div class="block" style="border-left-color:${colorOf(b.task.courseId)}"><div class="time">${fromM(b.start)}<br>${fromM(b.end)}</div><div style="flex:1"><div class="tt">${esc(b.task.title)}</div><div class="meta"><span>${b.task.duration}m</span><span>due ${fmtDate(b.task.dueDate)}</span></div></div><button class="btn sm" onclick="startFocus('${b.task.id}')" aria-label="Start">${ico('play',13)}</button></div>`).join('')
+  $('planList').innerHTML = (plan.blocks.map(b => `<div class="block" style="border-left-color:${colorOf(b.task.courseId)}"><div class="time">${fromM(b.start)}<br>${fromM(b.end)}</div><div style="flex:1"><div class="tt">${esc(b.task.title)}</div><div class="meta"><span>${est(b.task)}m</span><span>due ${fmtDate(b.task.dueDate)}</span></div></div><button class="btn sm" onclick="startFocus('${b.task.id}')" aria-label="Start">${ico('play',13)}</button></div>`).join('')
     + (plan.over.length ? `<div class="quest" style="border:1px solid var(--warn)"><b style="color:var(--warn)">Won't fit: ${plan.over.length} item${plan.over.length>1?'s':''}</b><div class="sub">${plan.over.map(t => esc(t.title)).join(', ')}. Split them up or start earlier.</div></div>` : ''))
     || '<div class="empty">Nothing to schedule. Enjoy the free time.</div>';
   renderTaskList();
@@ -665,7 +919,7 @@ function renderHome() {
     return `<div class="quest"><div class="row between"><b>${q.t}</b><span class="sub">${g}/${q.target}</span></div><div class="bar" style="margin:8px 0"><i style="width:${g/q.target*100}%"></i></div><button class="btn sm ${ok&&!cl?'ok':''}" ${ok&&!cl?'':'disabled'} onclick="claimQuest('${q.id}')">${cl?'Claimed':ok?`Claim ${q.coins} coins`:`Reward: ${q.coins} coins`}</button></div>`; }).join('');
   const ex = [...p.exams].sort((a,b) => a.date.localeCompare(b.date));
   $('examList').innerHTML = ex.map(e => { const d = daysBetween(todayStr(), e.date), lab = d < 0 ? 'Past' : d === 0 ? 'Today' : `${d}d`;
-    return `<div class="quest row between"><div><b>${esc(e.title)}</b><div class="sub">${fmtDate(e.date)}</div></div><div class="row"><span class="chip" style="color:${d<0?'var(--mute)':d<=3?'var(--bad)':'var(--acc)'}">${lab}</span><button class="btn sm" onclick="delExam('${e.id}')" aria-label="Remove">${ico('x',13)}</button></div></div>`; }).join('') || '<div class="empty">No exams yet.</div>';
+    const rd = readiness(e); return `<div class="quest row between"><div><b><button class="lnk" onclick="openExam('${e.id}')">${esc(e.title)}</button></b><div class="sub">${fmtDate(e.date)}${rd.score != null && d >= 0 ? ` · ready about ${rd.score}%` : ''}</div></div><div class="row"><span class="chip" style="color:${d<0?'var(--mute)':d<=3?'var(--bad)':'var(--acc)'}">${lab}</span><button class="btn sm" onclick="delExam('${e.id}')" aria-label="Remove">${ico('x',13)}</button></div></div>`; }).join('') || '<div class="empty">No exams yet.</div>';
 }
 function setTF(f) { taskFilter = f; document.querySelectorAll('#taskTabs button').forEach(b => b.classList.toggle('on', b.dataset.f === f)); renderTaskList(); }
 function renderTaskList() {
@@ -675,12 +929,12 @@ function renderTaskList() {
 }
 function renderPlan() {
   const [mon] = weekRange(), names = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  $('dayStrip').innerHTML = names.map((n,i) => { const d = addDays(mon,i); return `<button class="day ${d===selDay?'on':''} ${d===todayStr()?'today':''}" onclick="selDay='${d}';renderPlan()">${n}<b>${parseYmd(d).getDate()}</b></button>`; }).join('');
-  const dow = (parseYmd(selDay).getDay()+6)%7, evs = P().events.filter(e => e.days.includes(dow)).sort((a,b) => a.start.localeCompare(b.start));
+  $('dayStrip').innerHTML = names.map((n,i) => { const d = addDays(mon,i); return `<button class="day ${d===selDay?'on':''} ${d===todayStr()?'today':''}" onclick="selDay='${d}';renderPlan()">${n}<b>${parseYmd(d).getDate()}</b>${rotLetter(d) ? `<i style="font-style:normal;font-size:10px;opacity:.7">${rotLetter(d)}</i>` : ''}</button>`; }).join('');
+  const evs = P().events.filter(e => eventOn(e, selDay)).sort((a,b) => a.start.localeCompare(b.start));
   const due = P().tasks.filter(t => t.dueDate === selDay && t.status !== 'completed'), plan = selDay >= todayStr() ? planFor(selDay) : {blocks:[],over:[]};
-  $('dayTitle').textContent = fmtDate(selDay);
+  $('dayTitle').textContent = fmtDate(selDay) + (rotLetter(selDay) ? ` · ${rotLetter(selDay)} day` : '');
   $('dayBody').innerHTML =
-    (evs.map(e => `<div class="block" style="border-left-color:var(--acc2)"><div class="time">${fromM(toM(e.start))}<br>${fromM(toM(e.end))}</div><div style="flex:1"><div class="tt">${esc(e.title)}</div>${e.loc?`<div class="meta">${esc(e.loc)}</div>`:''}</div><button class="btn sm" onclick="delEvent('${e.id}')" aria-label="Delete">${ico('x',13)}</button></div>`).join('') || '<div class="sub">No classes.</div>')
+    (evs.map(e => `<div class="block" style="border-left-color:var(--acc2)"><div class="time">${fromM(toM(e.start))}<br>${fromM(toM(e.end))}</div><div style="flex:1"><div class="tt">${esc(e.title)}${e.rot && P().rot.on ? ` <span class="tag pl">${e.rot}</span>` : ''}</div>${e.loc?`<div class="meta">${esc(e.loc)}</div>`:''}</div><button class="btn sm" onclick="delEvent('${e.id}')" aria-label="Delete">${ico('x',13)}</button></div>`).join('') || '<div class="sub">No classes.</div>')
     + (due.length ? `<h3 style="margin-top:6px">Due</h3>` + due.map(taskHTML).join('') : '')
     + (plan.blocks.length ? `<h3 style="margin-top:6px">Suggested study blocks</h3>` + plan.blocks.map(b => `<div class="block" style="background:transparent;border:1px dashed var(--line);border-left:5px solid ${colorOf(b.task.courseId)}"><div class="time">${fromM(b.start)}<br>${fromM(b.end)}</div><div class="tt">${esc(b.task.title)}</div></div>`).join('') : '')
     + (plan.over.length ? `<div class="quest" style="border:1px solid var(--warn)"><b style="color:var(--warn)">This day is overloaded</b><div class="sub">${plan.over.length} task(s) won't fit in your free time.</div></div>` : '');
@@ -690,7 +944,7 @@ function renderCourses() {
     return `<div class="card stack"><div class="row"><span class="tile" style="background:${colorOf(c.id)}">${ico('book',20)}</span><div style="flex:1;min-width:0"><h3 style="font-size:16px">${esc(c.name)}</h3><div class="sub">${esc(c.code||'')}${c.instructor?' · '+esc(c.instructor):''}</div></div></div>
     <div><div class="row between sub"><span>${d}/${ts.length} done</span><span>${pct}%</span></div><div class="bar" style="margin-top:6px"><i style="width:${pct}%;background:${colorOf(c.id)}"></i></div></div>
     ${next.map(t => `<div class="meta" style="margin:0"><span style="color:${TYPE_COL[t.taskType]}">${ico(IC[t.taskType]?t.taskType:'assignment',14)}</span><span style="color:var(--ink)">${esc(t.title)}</span><span>${fmtDate(t.dueDate)}</span></div>`).join('')}
-    <div class="row between"><button class="btn sm" onclick="openTask('${c.id}')">${ico('plus',13)}Task</button><button class="btn sm" style="color:var(--mute)" onclick="delCourse('${c.id}')">Remove</button></div></div>`; }).join('') || '<div class="empty">No courses yet.</div>';
+    <div class="row between"><div class="row"><button class="btn sm" onclick="openTask('${c.id}')">${ico('plus',13)}Task</button><button class="btn sm" onclick="openGrades('${c.id}')">${ico('chart',13)}${gradeLabel(c)}</button></div><button class="btn sm" style="color:var(--mute)" onclick="delCourse('${c.id}')">Remove</button></div></div>`; }).join('') || '<div class="empty">No courses yet.</div>';
 }
 function renderFocus() {
   const sel = $('tLink'), keep = sel.value; sel.innerHTML = '<option value="">No linked task</option>' + sortedPending().map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join(''); sel.value = keep;
@@ -719,19 +973,19 @@ function shopAct(k) { const c = comp(), p = P();
   if (transact(() => { p.coins -= SHOP[k].c; c.owned.push(k); c.equipped = k; })) { burst(40); toast(`${SHOP[k].n} added to your collection.`); renderAll(); } }
 
 /* ---------- Sheets & forms ---------- */
-function openSheet(id) { if (id === 'settingsSheet') renderRemoved(); if (id === 'cardsSheet') { $('cardsText').value = P().cards; ci = 0; fl = false; showCard(); } $(id).classList.add('open'); }
+function openSheet(id) { if (id === 'eventSheet') $('vRotWrap').hidden = !P().rot.on; if (id === 'examSheet') $('eCourse').innerHTML = '<option value="">None</option>' + P().courses.map(c => `<option value="${c.id}">${esc(c.code||'')} ${esc(c.name)}</option>`).join(''); if (id === 'settingsSheet') renderRemoved(); if (id === 'cardsSheet') { $('cardsText').value = P().cards; ci = 0; fl = false; showCard(); } $(id).classList.add('open'); }
 function closeSheet(id) { $(id).classList.remove('open'); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.sheet.open').forEach(s => s.classList.remove('open')); });
-document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if (e.target === s) s.classList.remove('open'); }));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.sheet.open').forEach(s => { if (s.id !== 'welcomeSheet') s.classList.remove('open'); }); });
+document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if (e.target === s && s.id !== 'welcomeSheet') s.classList.remove('open'); }));
 function openTask(cid) { if (!P().courses.length) { toast('Add a course first.'); return openSheet('courseSheet'); } $('tCourse').innerHTML = P().courses.map(c => `<option value="${c.id}">${esc(c.code||'')} ${esc(c.name)}</option>`).join(''); if (cid) $('tCourse').value = cid; $('tDue').value = $('tDue').value || addDays(todayStr(),1); openSheet('taskSheet'); }
-function saveTask(e) { e.preventDefault(); addTask({title:$('tTitle').value.trim(), courseId:$('tCourse').value, taskType:$('tType').value, dueDate:$('tDue').value, duration:parseInt($('tDur').value)||45, priority:$('tPri').value}); addXp(5,0); e.target.reset(); closeSheet('taskSheet'); save(); renderAll(); toast('Task added.'); }
+function saveTask(e) { e.preventDefault(); addTask({title:$('tTitle').value.trim(), courseId:$('tCourse').value, taskType:$('tType').value, dueDate:$('tDue').value, duration:parseInt($('tDur').value)||45, priority:$('tPri').value, repeat:$('tRep').value}); addXp(5,0); e.target.reset(); closeSheet('taskSheet'); save(); renderAll(); toast('Task added.'); }
 function saveCourse(e) { e.preventDefault(); P().courses.push({id:uid(), name:$('cName').value.trim(), code:$('cCode').value.trim(), instructor:$('cInst').value.trim()}); e.target.reset(); closeSheet('courseSheet'); save(); renderAll(); }
 function delCourse(id) { const n = P().tasks.filter(t => t.courseId === id).length; if (!confirm(n ? `Remove this course and its ${n} task(s)?` : 'Remove this course?')) return; tomb(id); P().tasks.filter(t => t.courseId === id).forEach(t => tomb(t.id)); P().courses = P().courses.filter(c => c.id !== id); P().tasks = P().tasks.filter(t => t.courseId !== id); save(); renderAll(); }
-function saveExam(e) { e.preventDefault(); P().exams.push({id:uid(), title:$('eTitle').value.trim(), date:$('eDate').value}); e.target.reset(); closeSheet('examSheet'); save(); renderAll(); }
+function saveExam(e) { e.preventDefault(); const x = {id:uid(), title:$('eTitle').value.trim(), date:$('eDate').value, courseId:$('eCourse').value, topics:[], cards:'', mAt:Date.now()}; P().exams.push(x); e.target.reset(); closeSheet('examSheet'); save(); renderAll(); openExam(x.id); }
 function delExam(id) { tomb(id); P().exams = P().exams.filter(x => x.id !== id); save(); renderAll(); }
 function saveEvent(e) { e.preventDefault(); const days = [...document.querySelectorAll('.vd:checked')].map(c => +c.value);
   if (!days.length) return toast('Pick at least one day.'); if ($('vE').value <= $('vS').value) return toast('End must be after start.');
-  P().events.push({id:uid(), title:$('vTitle').value.trim(), days, start:$('vS').value, end:$('vE').value, loc:$('vL').value.trim()}); e.target.reset(); closeSheet('eventSheet'); save(); renderAll(); }
+  P().events.push({id:uid(), title:$('vTitle').value.trim(), days, start:$('vS').value, end:$('vE').value, loc:$('vL').value.trim(), rot:P().rot.on ? $('vRot').value : ''}); e.target.reset(); closeSheet('eventSheet'); save(); renderAll(); }
 function delEvent(id) { tomb(id); P().events = P().events.filter(x => x.id !== id); save(); renderAll(); }
 
 /* ---------- Import ---------- */
@@ -758,6 +1012,56 @@ function parseSyl() {
     pending.push({title, dueDate:h.date, taskType:type, priority:type==='test'?'high':'medium', duration:type==='reading'?45:type==='test'?120:type==='video'?30:60, on:true}); });
   preview('scanPrev', 'scanSheet');
 }
+/* ---------- AI scan: files -> server -> review ---------- */
+const SCAN_ERR = {sign_in:'Sign in first. Scanning uses your account.', off:'Scanning needs cloud sync set up (see the setup guide).', offline:"You're offline. Try again when you're connected, or paste text and use the basic finder.", not_deployed:'The scanner is not set up on the server yet (setup guide, Part 11).', not_configured:'The scanner has no AI key on the server yet (setup guide, Part 11).', limit:'You have used all of today\'s scans. Try again tomorrow, or use the basic finder.', too_big:'That is too much at once. Try fewer or smaller files.', too_many_files:'Up to 4 files at a time.', bad_file:'That file type is not supported. Use a photo, screenshot or PDF.', ai_failed:"The scanner couldn't read that. Try a clearer picture.", ai_unreachable:"Couldn't reach the AI service. Try again.", nothing_to_scan:'Nothing to scan yet.', server:'Something went wrong. Try again.'};
+function shrinkImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { const k = Math.min(1, 1800 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res({media_type:'image/jpeg', data:c.toDataURL('image/jpeg', .82).split(',')[1]}); };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('image')); }; im.src = url;
+  });
+}
+function fileB64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res({media_type:file.type, data:String(r.result).split(',')[1]}); r.onerror = rej; r.readAsDataURL(file); }); }
+async function scanFiles(inp) {
+  const fs = Array.from(inp.files || []); inp.value = ''; if (!fs.length) return;
+  if (fs.length > 4) return toast(SCAN_ERR.too_many_files);
+  $('scanStatus').textContent = 'Reading…';
+  try {
+    const parts = []; for (const f of fs) { if (f.type === 'application/pdf') { if (f.size > 5e6) { $('scanStatus').textContent = 'That PDF is over 5 MB. Try fewer pages.'; return; } parts.push(await fileB64(f)); } else if (/^image\//.test(f.type)) parts.push(await shrinkImage(f)); }
+    if (!parts.length) { $('scanStatus').textContent = SCAN_ERR.bad_file; return; }
+    await runScan({images:parts});
+  } catch (e) { $('scanStatus').textContent = "Couldn't open that file."; }
+}
+function scanText() { const t = $('scanText').value.trim(); if (!t) return toast(SCAN_ERR.nothing_to_scan); runScan({text:t}); }
+async function runScan(payload) {
+  $('scanStatus').textContent = 'Reading… this takes a few seconds.'; $('scanQ').textContent = '';
+  const r = await window.cloudScan({...payload, today:todayStr(), courses:P().courses.map(c => c.name)});
+  if (r.err) { $('scanStatus').textContent = SCAN_ERR[r.err] || SCAN_ERR.server; return; }
+  const d = r.data; pending = (d.items || []).map(x => ({title:x.title, taskType:x.type, dueDate:x.due_date || '', priority:x.type === 'test' ? 'high' : 'medium', duration:x.minutes || (x.type === 'reading' ? 45 : x.type === 'test' ? 120 : x.type === 'video' ? 30 : 60), courseId:matchCourse(x.course), conf:x.confidence, note:x.note || '', on:!!x.due_date && x.confidence !== 'low'}));
+  $('scanStatus').textContent = pending.length ? `Found ${pending.length}. Check each one, then add.${d.limit ? ` (${d.used} of ${d.limit} scans used today)` : ''}` : 'No dated tasks found. Try a clearer picture or paste the text.';
+  $('scanQ').innerHTML = (d.questions || []).map(q => `<div class="quest">${esc(q)}</div>`).join('');
+  previewScan();
+}
+function matchCourse(name) {
+  if (!name) return ''; const n = name.toLowerCase(); const cs = P().courses;
+  const c = cs.find(c => c.name.toLowerCase() === n || (c.code || '').toLowerCase() === n) || cs.find(c => n.includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(n) || (c.code && n.includes(c.code.toLowerCase())));
+  return c ? c.id : '';
+}
+function previewScan() {
+  const cs = P().courses;
+  $('scanPrev').innerHTML = pending.length ? pending.map((x, i) => `<div class="quest stack" style="margin:0;gap:6px">
+    <label class="row" style="margin:0"><input type="checkbox" ${x.on ? 'checked' : ''} ${x.dueDate ? '' : 'disabled'} onchange="pending[${i}].on=this.checked" aria-label="Add this task"><b style="flex:1">${esc(x.title)}</b>${x.conf === 'low' ? '<span class="tag">Check</span>' : ''}</label>
+    <div class="row wrap" style="gap:8px"><input type="date" value="${esc(x.dueDate)}" aria-label="Due date" onchange="scanSet(${i},'dueDate',this.value)" style="flex:1;min-width:130px">
+    <select aria-label="Course" onchange="scanSet(${i},'courseId',this.value)" style="flex:1;min-width:120px"><option value="">Which course?</option>${cs.map(c => `<option value="${c.id}"${c.id === x.courseId ? ' selected' : ''}>${esc(c.code || '')} ${esc(c.name)}</option>`).join('')}</select></div>
+    ${x.note ? `<div class="sub">${esc(x.note)}</div>` : ''}</div>`).join('') + `<button class="btn p" style="width:100%" onclick="commitScan()">Add selected</button>` : '';
+}
+function scanSet(i, k, v) { const x = pending[i]; if (!x) return; x[k] = v; if (k === 'dueDate') { x.on = !!v; previewScan(); } }
+function commitScan() {
+  const sel = pending.filter(x => x.on && x.dueDate && !x.courseId); if (sel.length) return toast('Pick a course for each task you are adding.');
+  commit('scanPrev', 'scanSheet'); $('scanStatus').textContent = ''; $('scanQ').textContent = '';
+}
+
 function preview(el, sheet) {
   $(el).innerHTML = pending.length ? pending.map((x,i) => `<label class="quest row" style="margin:0"><input type="checkbox" checked onchange="pending[${i}].on=this.checked"><span style="flex:1">${esc(x.title)}</span><span class="sub">${esc(x.dueDate)}</span></label>`).join('') + `<button class="btn p" style="width:100%" onclick="commit('${el}','${sheet}')">Add selected</button>` : '<div class="sub" style="color:var(--warn)">No dated items found.</div>';
 }
@@ -793,13 +1097,179 @@ function finishSession() {
   save(); renderAll(); setMode(wasFocus ? 'short' : 'pomodoro');
 }
 
+
+
+/* ---------- Family week: everyone on this account, side by side ---------- */
+function familyRows() {
+  const t0 = todayStr(), end = addDays(t0, 6);
+  return activeKeys().map(k => {
+    const p = DB.profiles[k], open = (p.tasks || []).filter(t => t.status !== 'completed');
+    const over = open.filter(t => t.dueDate < t0).length, soon = open.filter(t => t.dueDate >= t0 && t.dueDate <= end);
+    const today = soon.filter(t => t.dueDate === t0).length, mins = soon.reduce((a, t) => a + (t.duration || 0), 0);
+    const cap = (p.capacity > 0 ? p.capacity : (CAPACITY[levelOf(k)] || 180)) * 7;
+    const next = soon.sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0];
+    return {k, name:personName(k), level:LEVELS[levelOf(k)], over, today, n:soon.length, mins, heavy:mins > cap, next};
+  });
+}
+function openFamily() {
+  $('famBody').innerHTML = familyRows().map(r => `<button type="button" class="quest" style="text-align:left;width:100%;cursor:pointer" onclick="closeSheet('familySheet');pickPerson('${esc(r.k)}')">
+    <div class="row between"><b>${esc(r.name)}</b><span class="sub">${esc(r.level)}</span></div>
+    <div class="sub" style="margin-top:4px">${r.n} due this week · ${fmtMins(r.mins)}${r.today ? ` · <b>${r.today} today</b>` : ''}${r.over ? ` · <b style="color:var(--bad)">${r.over} overdue</b>` : ''}</div>
+    ${r.heavy ? '<div class="sub" style="margin-top:4px;color:var(--warn,var(--bad))">Heavier than their usual week.</div>' : ''}
+    ${r.next ? `<div class="sub" style="margin-top:4px">Next: ${esc(r.next.title)} · ${esc(dayName(r.next.dueDate))}</div>` : '<div class="sub" style="margin-top:4px">Nothing due this week.</div>'}</button>`).join('') || '<div class="sub">No one yet.</div>';
+  openSheet('familySheet');
+}
+
+/* ---------- Rotating A/B school days ---------- */
+const isSchoolDay = (d, r) => { const w = parseYmd(d).getDay(); return w !== 0 && w !== 6 && !r.off.includes(d); };
+function nextSchoolDay(d, r) { let g = 0; while (!isSchoolDay(d, r) && g++ < 60) d = addDays(d, 1); return d; }
+// Counts school days from the anchor: even steps keep the anchor's letter, odd steps flip it.
+function rotLetter(date) {
+  const r = P().rot; if (!r || !r.on || !r.anchor || !isSchoolDay(date, r)) return '';
+  if (Math.abs(daysBetween(r.anchor, date)) > 800) return '';
+  let n = 0, d = r.anchor;
+  if (date > d) { while (d < date) { d = addDays(d, 1); if (isSchoolDay(d, r)) n++; } }
+  else { while (d > date) { if (isSchoolDay(d, r)) n--; d = addDays(d, -1); } }
+  return (((n % 2) + 2) % 2 === 0) ? r.letter : (r.letter === 'A' ? 'B' : 'A');
+}
+function eventOn(e, date) {
+  const dow = (parseYmd(date).getDay() + 6) % 7; if (!e.days.includes(dow)) return false;
+  const r = P().rot; if (!e.rot || !r.on) return true;
+  return rotLetter(date) === e.rot;
+}
+function openRot() { const r = P().rot; $('rOn').value = r.on ? '1' : '0'; $('rLetter').value = r.letter || 'A'; renderRot(); openSheet('rotSheet'); }
+function renderRot() {
+  const r = P().rot; $('rBox').hidden = !r.on;
+  $('rOffList').innerHTML = r.off.slice().sort().map(d => `<span class="chip">${fmtDate(d)}<button type="button" onclick="delOff('${d}')" aria-label="Remove ${fmtDate(d)}" style="margin-left:6px;display:inline-flex">${ico('x',12)}</button></span>`).join('') || '<span class="sub">None added.</span>';
+}
+function setRot() {
+  const r = P().rot, on = $('rOn').value === '1', letter = $('rLetter').value;
+  if (on && (!r.on || r.letter !== letter || !r.anchor)) { r.anchor = nextSchoolDay(todayStr(), r); r.letter = letter; }   // re-anchor whenever "today is..." changes
+  r.on = on; save(); renderRot(); renderAll();
+}
+function addOff() { const v = $('rOffDate').value, r = P().rot; if (!v || r.off.includes(v)) return; const was = rotLetter(todayStr()); r.off.push(v); $('rOffDate').value = ''; save(); renderRot(); renderAll(); }
+function delOff(d) { const r = P().rot; r.off = r.off.filter(x => x !== d); save(); renderRot(); renderAll(); }
+
+/* ---------- Grades: scores, course average, what-do-I-need ---------- */
+let gradeId = null;
+const GTYPES = ['assignment','quiz','test','reading','video'];
+const courseById = id => P().courses.find(c => c.id === id);
+const scoredTasks = c => P().tasks.filter(t => t.courseId === c.id && t.total > 0 && t.score != null);
+function courseAvg(c) {
+  const ts = scoredTasks(c); if (!ts.length) return null;
+  const pts = () => ts.reduce((a, t) => a + t.score, 0) / ts.reduce((a, t) => a + t.total, 0) * 100;
+  if (c.gradeMode !== 'weighted') return pts();
+  const g = {}; ts.forEach(t => { const o = g[t.taskType] = g[t.taskType] || {s:0, t:0}; o.s += t.score; o.t += t.total; });
+  let ws = 0, acc = 0; Object.keys(g).forEach(k => { const w = (c.weights || {})[k] || 0; if (w > 0) { ws += w; acc += w * g[k].s / g[k].t; } });
+  return ws ? acc / ws * 100 : pts();
+}
+const gradeLabel = c => { const a = courseAvg(c); return a == null ? 'Grades' : Math.round(a * 10) / 10 + '%'; };
+// Needed average on the rest so that: avg*(1-r) + need*r = target
+function neededScore(avg, target, restPct) { const r = restPct / 100; return r > 0 ? (target - avg * (1 - r)) / r : null; }
+function openGrades(id) { if (!courseById(id)) return; gradeId = id; renderGrades(); openSheet('gradesSheet'); }
+function renderGrades() {
+  const c = courseById(gradeId); if (!c) return; const avg = courseAvg(c), ts = scoredTasks(c).sort((a, b) => (a.completedAt || a.dueDate).localeCompare(b.completedAt || b.dueDate));
+  $('gTitle').textContent = c.name; $('gAvg').textContent = avg == null ? '-' : (Math.round(avg * 10) / 10) + '%';
+  $('gNote').textContent = avg == null ? "No scores yet. Open a task and enter its score." : `From ${ts.length} score${ts.length > 1 ? 's' : ''}.`;
+  $('gTrend').innerHTML = ts.slice(-8).map(t => { const pc = t.score / t.total * 100; return `<div title="${esc(t.title)}: ${Math.round(pc)}%" style="flex:1;height:${Math.max(6, Math.min(100, pc))}%;border-radius:6px 6px 3px 3px;background:${pc >= 90 ? 'var(--ok)' : pc >= 70 ? 'var(--acc)' : 'var(--warn)'}"></div>`; }).join('');
+  $('gMode').value = c.gradeMode === 'weighted' ? 'weighted' : 'points';
+  $('gWeights').innerHTML = c.gradeMode === 'weighted' ? GTYPES.map(k => `<label style="margin:0;flex:1;min-width:90px">${esc(V(k))} %<input type="number" min="0" max="100" inputmode="decimal" value="${(c.weights || {})[k] ?? ''}" oninput="setWeight('${k}',this.value)"></label>`).join('') : '';
+  $('gTarget').value = c.target ?? 90; $('gRest').value = c.rest ?? 30; renderNeed();
+  $('gItems').innerHTML = ts.slice().reverse().map(t => `<div class="row between"><span>${esc(t.title)}</span><b>${t.score}/${t.total} <span class="sub">${Math.round(t.score / t.total * 100)}%</span></b></div>`).join('') || '<div class="sub">Nothing scored yet.</div>';
+}
+function renderNeed() {
+  const c = courseById(gradeId), avg = courseAvg(c), box = $('gNeed'); if (avg == null) { box.textContent = 'Add a score first, then this shows what you need on the rest.'; return; }
+  const T = c.target ?? 90, R = c.rest ?? 30, need = neededScore(avg, T, R);
+  box.innerHTML = need == null ? '' : need > 100 ? `Reaching <b>${T}%</b> would take more than 100% on the rest. A goal of ${Math.max(0, Math.floor(avg * (1 - R / 100) + R))}% is the highest still possible.`
+    : need <= 0 ? `You're already on track for <b>${T}%</b> even with a 0 on the rest. Nice.` : `To finish at <b>${T}%</b> you need about <b>${Math.ceil(need * 10) / 10}%</b> on the remaining ${R}% of the grade.`;
+}
+function saveCourseGrade(c) { c.mAt = Date.now(); save(); }
+function setGradeMode(v) { const c = courseById(gradeId); if (!c) return; c.gradeMode = v === 'weighted' ? 'weighted' : 'points'; if (c.gradeMode === 'weighted' && !c.weights) c.weights = {assignment:40, quiz:20, test:40, reading:0, video:0}; saveCourseGrade(c); renderGrades(); renderCourses(); }
+function setWeight(k, v) { const c = courseById(gradeId); if (!c) return; (c.weights = c.weights || {})[k] = Math.max(0, Math.min(100, parseFloat(v) || 0)); saveCourseGrade(c); $('gAvg').textContent = (Math.round((courseAvg(c) ?? 0) * 10) / 10) + '%'; renderNeed(); renderCourses(); }
+function setGradeNum(k, v) { const c = courseById(gradeId); v = parseFloat(v); if (!c || !isFinite(v)) return; c[k] = Math.max(1, Math.min(100, v)); saveCourseGrade(c); renderNeed(); }
+
+/* ---------- Exam prep: topics, readiness estimate, revision plan, spaced practice ---------- */
+const MASTERY = ['Not started','Shaky','Okay','Solid'], BOX_DAYS = [0,1,2,4,8,16];
+let examId = null, planPreview = [];
+const examById = id => P().exams.find(e => e.id === id);
+const deckCards = text => String(text || '').split('\n').map(l => l.split('::')).filter(a => a.length >= 2).map(a => [a[0].trim(), a.slice(1).join('::').trim()]).filter(a => a[0] && a[1]);
+const cardKey = (deck, front) => deck + '|' + front.toLowerCase();
+function dueCards(deck, text) { const t0 = todayStr(), cb = P().cardBox; return deckCards(text).filter(([f]) => { const st = cb[cardKey(deck, f)]; return !st || st.due <= t0; }); }
+const dueCount = (deck, text) => dueCards(deck, text).length;
+// A rough guide built only from what the student marked: topics, practice cards and revision tasks done. Not a grade prediction.
+function readiness(e) {
+  const parts = [], p = P();
+  if (e.topics.length) parts.push([.5, e.topics.reduce((a, t) => a + t.mastery, 0) / (3 * e.topics.length)]);
+  const cs = deckCards(e.cards); if (cs.length) parts.push([.3, cs.filter(([f]) => (p.cardBox[cardKey(e.id, f)] || {b:0}).b >= 3).length / cs.length]);
+  const rv = p.tasks.filter(t => t.examId === e.id && t.revision); if (rv.length) parts.push([.2, rv.filter(t => t.status === 'completed').length / rv.length]);
+  if (!parts.length) return {score:null};
+  const w = parts.reduce((a, x) => a + x[0], 0); return {score: Math.round(parts.reduce((a, x) => a + x[0] * x[1], 0) / w * 100)};
+}
+function openExam(id) { const e = examById(id); if (!e) return; examId = id; planPreview = []; $('xCards').value = e.cards; $('xPlan').innerHTML = ''; renderExam(); openSheet('examDetail'); }
+function renderExam() {
+  const e = examById(examId); if (!e) return; const d = daysBetween(todayStr(), e.date), r = readiness(e);
+  $('xTitle').textContent = e.title; $('xDays').textContent = d < 0 ? 'Past' : d === 0 ? 'Today' : d + ' day' + (d === 1 ? '' : 's');
+  $('xScore').textContent = r.score == null ? '-' : r.score + '%'; $('xBar').style.width = (r.score || 0) + '%';
+  $('xScoreNote').textContent = r.score == null ? 'Add topics or practice cards to see an estimate.' : 'A rough guide from what you marked, not a prediction of your grade.';
+  $('xTopics').innerHTML = e.topics.map(t => `<div class="row" style="gap:8px"><button type="button" class="chip m${t.mastery}" style="min-width:96px;justify-content:center" onclick="cycleTopic('${t.id}')" aria-label="${esc(t.name)}: ${MASTERY[t.mastery]}. Tap to change">${MASTERY[t.mastery]}</button><span style="flex:1">${esc(t.name)}</span><button type="button" class="btn sm" style="color:var(--mute)" onclick="delTopic('${t.id}')" aria-label="Remove topic">${ico('x',13)}</button></div>`).join('') || '<div class="sub">No topics yet. List what the exam covers.</div>';
+  const due = dueCount(e.id, e.cards); $('xPractice').textContent = due ? `Practice ${due} due` : 'Practice'; $('xPractice').disabled = !deckCards(e.cards).length;
+}
+function touchExam(e) { e.mAt = Date.now(); save(); renderExam(); renderHome(); }
+function addTopic() { const e = examById(examId), v = $('xNewTopic').value.trim(); if (!e || !v) return; e.topics.push({id:uid(), name:v, mastery:0}); $('xNewTopic').value = ''; touchExam(e); $('xNewTopic').focus(); }
+function cycleTopic(id) { const e = examById(examId), t = e && e.topics.find(x => x.id === id); if (!t) return; t.mastery = (t.mastery + 1) % 4; touchExam(e); }
+function delTopic(id) { const e = examById(examId); if (!e) return; e.topics = e.topics.filter(x => x.id !== id); touchExam(e); }
+function saveExamCards() { const e = examById(examId); if (!e) return; e.cards = $('xCards').value; e.mAt = Date.now(); save(); renderExam(); }
+// Spread the weakest topics earliest, finish with one final review the day before.
+function planRevision(e) {
+  const t0 = todayStr(), n = daysBetween(t0, e.date); if (n < 1) return [];
+  const slots = Array.from({length:n}, (_, i) => addDays(t0, i)), usable = n > 1 ? n - 1 : 1;
+  const weak = e.topics.filter(t => t.mastery < 3).sort((a, b) => a.mastery - b.mastery), out = [];
+  weak.forEach((t, i) => out.push({title:`Review: ${t.name}`, dueDate:slots[Math.floor(i * usable / weak.length)], duration:[40,30,20][t.mastery], topicId:t.id, priority:'medium'}));
+  if (weak.length || !e.topics.length) out.push({title:`Final review: ${e.title}`, dueDate:slots[n - 1], duration:45, priority:'high'});
+  return out;
+}
+function previewRevision() {
+  const e = examById(examId); if (!e) return; planPreview = planRevision(e);
+  $('xPlan').innerHTML = !planPreview.length ? `<div class="sub">${daysBetween(todayStr(), e.date) < 1 ? 'There is no time left to plan before this exam.' : 'Everything is marked Solid. Nice.'}</div>`
+    : `<div class="quest stack" style="gap:6px"><b>${planPreview.length} study task${planPreview.length > 1 ? 's' : ''}</b>${planPreview.map(x => `<div class="row between"><span>${esc(x.title)}</span><span class="sub">${fmtDate(x.dueDate)} · ${x.duration}m</span></div>`).join('')}<div class="sub">Replaces any revision tasks you haven't finished for this exam.</div><button class="btn p" onclick="applyRevision()">Add to my tasks</button></div>`;
+}
+function applyRevision() {
+  const e = examById(examId), p = P(); if (!e || !planPreview.length) return;
+  p.tasks.filter(t => t.examId === e.id && t.revision && t.status !== 'completed').forEach(t => tomb(t.id));
+  p.tasks = p.tasks.filter(t => !(t.examId === e.id && t.revision && t.status !== 'completed'));
+  planPreview.forEach(x => p.tasks.push({id:uid(), courseId:e.courseId || p.courses[0]?.id || '', title:x.title, taskType:'reading', dueDate:x.dueDate, duration:x.duration, priority:x.priority, status:'pending', actualMins:0, completedAt:null, examId:e.id, revision:true, topicId:x.topicId || '', repeat:'', notes:'', link:'', steps:[], mAt:Date.now()}));
+  const n = planPreview.length; planPreview = []; $('xPlan').innerHTML = ''; save(); renderAll(); renderExam(); toast(`${n} study task${n > 1 ? 's' : ''} added.`);
+}
+/* Practice: Leitner boxes. Missed cards drop to box 1 and return this session; known cards come back after longer gaps. */
+let PR = null;
+function startPractice(deck) {
+  const text = deck === 'general' ? P().cards : (examById(deck) || {}).cards, due = dueCards(deck, text);
+  if (!due.length) return toast(deckCards(text).length ? 'Nothing due right now. Come back later.' : 'Add some cards first.');
+  const q = due.map(([front, back]) => ({front, back, deck})).sort(() => Math.random() - .5).slice(0, 20);
+  PR = {q, i:0, flip:false, got:0, missed:0, first:q.length}; openSheet('practiceSheet'); renderPractice();
+}
+function renderPractice() {
+  const done = PR.i >= PR.q.length; $('prBtns').style.display = done ? 'none' : '';
+  if (done) { $('prCount').textContent = ''; $('prCard').textContent = `Done. ${PR.got} known, ${PR.missed} to see again soon.`; return; }
+  $('prCount').textContent = `${PR.i + 1} / ${PR.q.length}`; $('prCard').textContent = PR.flip ? PR.q[PR.i].back : PR.q[PR.i].front;
+}
+function flipPractice() { if (PR && PR.i < PR.q.length) { PR.flip = !PR.flip; renderPractice(); } }
+function gradeCard(ok) {
+  if (!PR || PR.i >= PR.q.length) return; const c = PR.q[PR.i], k = cardKey(c.deck, c.front), cb = P().cardBox, st = cb[k] || {b:0};
+  if (!c.again) { const b = ok ? Math.min(5, st.b + 1) : 1; cb[k] = {b, due:addDays(todayStr(), ok ? BOX_DAYS[b] : 0), at:Date.now()}; }
+  if (ok) PR.got++; else { PR.missed++; if (!c.again) PR.q.push(Object.assign({}, c, {again:true})); }
+  PR.i++; PR.flip = false;
+  if (PR.i >= PR.q.length) { addXp(Math.min(30, PR.got * 2), Math.min(10, PR.got)); markActive(); checkProgress(); }
+  save(); renderPractice(); renderAll(); if ($('examDetail').classList.contains('open')) renderExam();
+}
+
 /* ---------- Flashcards ---------- */
 let ci = 0, fl = false;
 const cards = () => P().cards.split('\n').map(l => l.split('::')).filter(a => a.length >= 2).map(a => [a[0].trim(), a.slice(1).join('::').trim()]);
 function saveCards() { P().cards = $('cardsText').value; ci = 0; save(); showCard(); }
-function showCard() { const cs = cards(); $('cCount').textContent = cs.length ? `${ci+1} / ${cs.length}` : '0 cards'; $('flash').textContent = cs.length ? (fl ? cs[ci][1] : cs[ci][0]) : 'Add cards above (front :: back)'; }
+function showCard() { const cs = cards(); $('cPractice').textContent = dueCount('general', P().cards) ? `Practice ${dueCount('general', P().cards)} due` : 'Nothing due right now';  $('cCount').textContent = cs.length ? `${ci+1} / ${cs.length}` : '0 cards'; $('flash').textContent = cs.length ? (fl ? cs[ci][1] : cs[ci][0]) : 'Add cards above (front :: back)'; }
 function flipCard() { fl = !fl; showCard(); }
-function stepCard(d) { const n = cards().length; if (!n) return; ci = (ci+d+n)%n; fl = false; if (d > 0) { addXp(5,1); save(); renderHome(); } showCard(); }
+function stepCard(d) { const n = cards().length; if (!n) return; ci = (ci+d+n)%n; fl = false; showCard(); }
 
 /* ---------- Briefing, notifications, settings ---------- */
 function showBrief() {
@@ -807,9 +1277,9 @@ function showBrief() {
   const p = P(), t0 = todayStr(), morning = new Date().getHours() < 14, done = p.tasks.filter(t => t.completedAt === t0).length, mins = p.focusLog.filter(f => f.date === t0).reduce((a,f) => a+f.mins, 0);
   const todays = p.tasks.filter(t => t.status!=='completed' && t.dueDate <= t0), tom = p.tasks.filter(t => t.status!=='completed' && t.dueDate === addDays(t0,1)), n = sortedPending()[0];
   const list = a => a.length ? a.map(t => '• ' + esc(t.title)).join('<br>') : 'Nothing due.';
-  $('briefBody').innerHTML = `<div class="quest"><div class="sub" style="font-weight:900;text-transform:uppercase">${morning?'Today':'Today so far'}</div><div style="margin-top:4px">${morning ? `${todays.length} due or overdue · ${fmtMins(todays.reduce((a,t)=>a+t.duration,0))}<br>${list(todays)}` : `${done} task${done===1?'':'s'} finished · ${mins}m focus`}</div></div>
+  $('briefBody').innerHTML = `<div class="quest"><div class="sub" style="font-weight:900;text-transform:uppercase">${morning?'Today':'Today so far'}</div><div style="margin-top:4px">${morning ? `${todays.length} due or overdue · ${fmtMins(todays.reduce((a,t)=>a+est(t),0))}<br>${list(todays)}` : `${done} task${done===1?'':'s'} finished · ${mins}m focus`}</div></div>
     <div class="quest"><div class="sub" style="font-weight:900;text-transform:uppercase">Tomorrow</div><div style="margin-top:4px">${list(tom)}</div></div>
-    ${n ? `<div class="quest"><div class="sub" style="font-weight:900;text-transform:uppercase">Next step</div><div style="margin-top:4px">${esc(n.title)} · ${n.duration}m</div></div>` : ''}`;
+    ${n ? `<div class="quest"><div class="sub" style="font-weight:900;text-transform:uppercase">Next step</div><div style="margin-top:4px">${esc(n.title)} · ${est(n)}m</div></div>` : ''}`;
   $('notifBtn').style.display = ('Notification' in window && Notification.permission === 'default') ? '' : 'none';
   p.lastBrief = t0; save(); openSheet('briefSheet');
 }
@@ -818,6 +1288,10 @@ function notify(t, b) { try { if ('Notification' in window && Notification.permi
 function switchProfile(k) { if (!DB.profiles[k] || DB.profiles[k].archived) return; DB.current = k; pauseTimer(); save(); buildChrome(); renderAll(); }
 function setVibe(v) { P().vibe = v; save(); applyTheme(); renderAll(); }
 function setTheme(v) { DB.theme = v; save(); applyTheme(); }
+// Accessibility settings belong to this device (a phone and a shared tablet may need different ones).
+function applyA11y() { const a = DB.a11y || {}, h = document.documentElement.dataset; h.size = a.size || ''; h.hc = a.hc ? 'on' : ''; h.cb = a.cb ? 'on' : ''; h.motion = a.motion ? 'reduce' : ''; h.read = a.read ? 'on' : ''; }
+function setA11y(k, v) { DB.a11y = DB.a11y || {}; DB.a11y[k] = (k === 'size') ? v : v === '1'; save(); applyA11y(); }
+function fillA11y() { const a = DB.a11y || {}; $('aSize').value = a.size || ''; ['hc','cb','motion','read'].forEach(k => { $('a_' + k).value = a[k] ? '1' : '0'; }); }
 function exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'})); a.download = `${APP_NAME.toLowerCase()}-backup-${todayStr()}.json`; a.click(); toast('Backup downloaded.'); }
 function importData(inp) {
   const f = inp.files[0]; if (!f) return; const r = new FileReader();
@@ -829,6 +1303,200 @@ function importData(inp) {
 }
 function clearSample() { if (!confirm('Remove the sample courses, tasks, exams and classes? XP, coins and companions are kept.')) return; const p = P(); [...p.courses, ...p.tasks, ...p.exams, ...p.events].forEach(x => tomb(x.id)); p.courses = []; p.tasks = []; p.exams = []; p.events = []; save(); renderAll(); closeSheet('settingsSheet'); toast('Sample data cleared. Add your first course to begin.'); }
 function resetProfile() { if (!confirm('Reset this profile completely? XP, coins and companions will be erased. Export a backup first if unsure.')) return; { const old = DB.profiles[DB.current]; DB.profiles[DB.current] = seed(levelOf(DB.current), old.name, true); DB.profiles[DB.current].metaAt = Date.now(); } save(); if (window.cloudForce) window.cloudForce([DB.current]); buildChrome(); renderAll(); closeSheet('settingsSheet'); }
+
+/* ---------- Smart help: do-this-now, workload warnings, fresh start, weekly review ---------- */
+const CAPACITY = { elementary:60, middleschool:90, highschool:150, college:240, grad:300, professional:300 };
+const capacity = () => (P().capacity > 0 ? P().capacity : (CAPACITY[levelOf(DB.current)] || 180));
+const dayName = d => { const t0 = todayStr(); return d === t0 ? 'Today' : d === addDays(t0, 1) ? 'Tomorrow' : parseYmd(d).toLocaleDateString('en-US', {weekday:'long'}); };
+const NOW_SKIP = new Set();
+function setPace(v) { if (!DB.profiles[DB.current]) return; P().usePace = v !== '0'; save(); renderAll(); }
+function setCapacity(v) { if (!DB.profiles[DB.current]) return; P().capacity = parseInt(v) || 0; save(); renderAll(); }
+
+function scoreTask(t, t0, hour) {
+  const d = daysBetween(t0, t.dueDate);
+  let s = d < 0 ? 100 + Math.min(-d, 10) * 3 : d === 0 ? 90 : 60 - Math.min(d, 14) * 3;
+  s += {urgent:20, high:12, medium:5, low:0}[t.priority] || 0;
+  if (t.taskType === 'test' || t.taskType === 'quiz') s += 4;
+  s += Math.max(0, 6 - est(t) / 15);
+  if (hour >= 21) s += est(t) <= 30 ? 8 : -8;          // late at night: favor something short
+  return s;
+}
+function pickNow() {
+  const t0 = todayStr(), hr = new Date().getHours();
+  const c = P().tasks.filter(t => t.status !== 'completed' && !NOW_SKIP.has(t.id)).sort((a, b) => scoreTask(b, t0, hr) - scoreTask(a, t0, hr));
+  return c[0] || null;
+}
+function whyNow(t) {
+  const t0 = todayStr(), d = daysBetween(t0, t.dueDate);
+  const when = d < 0 ? `overdue by ${-d} day${-d === 1 ? '' : 's'}` : d === 0 ? 'due today' : d === 1 ? 'due tomorrow' : `due ${dayName(t.dueDate)}`;
+  return `${when} · ${t.priority} priority · about ${fmtMins(est(t))}`;
+}
+function skipNow(id) { NOW_SKIP.add(id); if (!pickNow()) NOW_SKIP.clear(); renderSmart(); }
+
+// Minutes of work due on each of the next n days (overdue work counts toward today).
+function loadByDay(n) {
+  const t0 = todayStr(), out = [];
+  const pend = P().tasks.filter(t => t.status !== 'completed');
+  for (let i = 0; i < n; i++) {
+    const d = addDays(t0, i);
+    out.push({date: d, mins: pend.filter(t => t.dueDate === d || (i === 0 && t.dueDate < t0)).reduce((a, t) => a + est(t), 0)});
+  }
+  return out;
+}
+// Days where more is due than the person usually has time for, with a task to start early and a day with room.
+function workloadAlerts() {
+  const cap = capacity(), days = loadByDay(7), out = [];
+  days.forEach((day, i) => {
+    if (i === 0 || day.mins <= cap) return;
+    const room = days.slice(0, i).filter(x => x.mins < cap * 0.8).sort((a, b) => a.mins - b.mins)[0];
+    const due = P().tasks.filter(t => t.status !== 'completed' && t.dueDate === day.date).sort((a, b) => est(b) - est(a));
+    if (!due.length) return;
+    out.push({date: day.date, mins: day.mins, cap, head: due[0], room: room ? room.date : null});
+  });
+  return out;
+}
+function overdueList() { const t0 = todayStr(); return P().tasks.filter(t => t.status !== 'completed' && t.dueDate < t0); }
+
+// Spread overdue work over the coming days, never loading a day past the usual capacity.
+function planReset() {
+  const t0 = todayStr(), cap = capacity(), start = new Date().getHours() >= 18 ? addDays(t0, 1) : t0;
+  const load = {}; P().tasks.filter(t => t.status !== 'completed' && t.dueDate >= start).forEach(t => { load[t.dueDate] = (load[t.dueDate] || 0) + est(t); });
+  const od = overdueList().sort((a, b) => (PW[a.priority] - PW[b.priority]) || a.dueDate.localeCompare(b.dueDate)), moves = [];
+  od.forEach(t => {
+    const m = est(t);
+    for (let i = 0; i < 28; i++) {
+      const d = addDays(start, i);
+      if ((load[d] || 0) + m <= cap || !(load[d] || 0) || i === 27) { load[d] = (load[d] || 0) + m; moves.push({id: t.id, title: t.title, from: t.dueDate, to: d}); break; }
+    }
+  });
+  return moves;
+}
+function openReset() {
+  const moves = planReset(); if (!moves.length) return;
+  $('resetLead').textContent = `${moves.length} overdue task${moves.length === 1 ? '' : 's'} will get a new day, spread out so no day is overloaded. You can undo it afterward.`;
+  $('resetList').innerHTML = moves.map(m => `<div class="quest row between"><span><b>${esc(m.title)}</b><div class="sub">was ${fmtDate(m.from)}</div></span><span class="chip">${dayName(m.to)}</span></div>`).join('');
+  openSheet('resetSheet');
+}
+function applyReset() {
+  const moves = planReset(), p = P(), now = Date.now();
+  moves.forEach(m => { const t = p.tasks.find(x => x.id === m.id); if (t) { t.origDue = t.origDue || t.dueDate; t.dueDate = m.to; t.mAt = now; } });
+  p.lastReset = {at: now, moves: moves.map(m => ({id: m.id, from: m.from}))};
+  save(); closeSheet('resetSheet'); renderAll(); toast(`Moved ${moves.length} task${moves.length === 1 ? '' : 's'}. A fresh start.`);
+}
+function undoReset() {
+  const p = P(), r = p.lastReset; if (!r) return; const now = Date.now();
+  r.moves.forEach(m => { const t = p.tasks.find(x => x.id === m.id); if (t && t.status !== 'completed') { t.dueDate = m.from; t.mAt = now; if (t.origDue === m.from) delete t.origDue; } });
+  p.lastReset = null; save(); renderAll(); toast('Put everything back.');
+}
+
+function reviewData() {
+  const p = P(), t0 = todayStr(), from = addDays(t0, -6), p7 = d => d >= from && d <= t0;
+  const done = p.tasks.filter(t => t.status === 'completed' && t.completedAt && p7(t.completedAt));
+  const onTime = done.filter(t => t.completedAt <= t.dueDate).length;
+  const byDay = {}; done.forEach(t => { byDay[t.completedAt] = (byDay[t.completedAt] || 0) + 1; });
+  const best = Object.entries(byDay).sort((a, b) => b[1] - a[1])[0];
+  const focus = p.focusLog.filter(f => p7(f.date)).reduce((a, f) => a + (f.mins || 0), 0);
+  const active = (p.activeDays || []).filter(p7).length;
+  const slipped = overdueList().sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  const next = []; for (let i = 1; i <= 7; i++) next.push(addDays(t0, i));
+  const upcoming = p.tasks.filter(t => t.status !== 'completed' && t.dueDate > t0 && t.dueDate <= addDays(t0, 7));
+  return {done: done.length, onTime, best, focus, active, slipped, upcoming, alerts: workloadAlerts(), streak: currentStreak()};
+}
+function openReview() {
+  const p = P(), r = reviewData(), cap = capacity();
+  $('revLead').textContent = r.done ? `${r.done} task${r.done === 1 ? '' : 's'} finished in the last 7 days.` : 'A quiet week. A fresh one starts now.';
+  const row = (h, body) => `<div class="quest"><div class="sub" style="font-weight:900;text-transform:uppercase">${h}</div><div style="margin-top:4px">${body}</div></div>`;
+  const items = [
+    row('Done', `${r.done} finished${r.done ? ` · ${r.onTime} on time` : ''}<br>${r.focus}m focus · ${r.active} active day${r.active === 1 ? '' : 's'} · ${r.streak}-day streak${r.best ? `<br>Best day: ${dayName(r.best[0])} (${r.best[1]})` : ''}`),
+    row('Slipped', r.slipped.length ? r.slipped.slice(0, 5).map(t => '• ' + esc(t.title)).join('<br>') + (r.slipped.length > 5 ? `<br>and ${r.slipped.length - 5} more` : '') + (r.slipped.length >= 2 ? `<div style="margin-top:8px"><button class="btn sm" onclick="closeSheet('reviewSheet');openReset()">Give them a fresh start</button></div>` : '') : 'Nothing overdue.'),
+    row('Next week', r.upcoming.length ? `${r.upcoming.length} due · about ${fmtMins(r.upcoming.reduce((a, t) => a + est(t), 0))}${r.alerts.length ? `<br>Heaviest: ${r.alerts.slice(0, 2).map(a => `${dayName(a.date)} (${fmtMins(a.mins)})`).join(', ')}` : '<br>Looks manageable.'}` : 'Nothing due yet.')
+  ];
+  $('revBody').innerHTML = items.join('');
+  p.lastReview = weekRange()[0]; save(); renderSmart(); openSheet('reviewSheet');
+}
+
+function renderSmart() {
+  const box = $('smartBox'); if (!box) return;
+  if (!DB.profiles[DB.current]) { box.innerHTML = ''; return; }
+  const p = P(), parts = [], t0 = todayStr(), od = overdueList();
+  // 1. what to do right now
+  const n = pickNow();
+  parts.push(n
+    ? `<div class="card"><div class="sub" style="font-weight:900;text-transform:uppercase">${esc(V('Now'))}</div><h2 style="margin-top:4px">${esc(n.title)}</h2><div class="sub" style="margin-top:4px">${esc(whyNow(n))}</div>
+        <div class="row wrap" style="margin-top:12px"><button class="btn p" onclick="startFocus('${n.id}')">${ico('play',14)}Start</button><button class="btn" onclick="toggleTask('${n.id}')">${ico('check',14)}Done</button><button class="btn" onclick="skipNow('${n.id}')">Not now</button></div></div>`
+    : `<div class="card"><div class="sub" style="font-weight:900;text-transform:uppercase">${esc(V('Now'))}</div><h2 style="margin-top:4px">${p.tasks.length ? "You're all clear" : 'Nothing here yet'}</h2><div class="sub" style="margin-top:4px">${p.tasks.length ? 'Nothing left to do. Enjoy it, or get ahead.' : 'Add your first task and Orvi will tell you what to do next.'}</div><div style="margin-top:12px"><button class="btn p" onclick="openSheet('capSheet')">${ico('plus',14)}Add something</button></div></div>`);
+  // 2. workload warning
+  const a = workloadAlerts()[0];
+  if (a) parts.push(`<div class="card" style="border-color:rgba(245,158,11,.5)"><div class="sub" style="font-weight:900;text-transform:uppercase;color:var(--warn)">Heads up</div><div style="margin-top:4px"><b>${dayName(a.date)}</b> has ${fmtMins(a.mins)} due, more than your usual ${fmtMins(a.cap)}.</div><div class="sub" style="margin-top:4px">Get a head start on "${esc(a.head.title)}" (${fmtMins(est(a.head))})${a.room ? `. ${dayName(a.room)} has room.` : '.'}</div><div style="margin-top:10px"><button class="btn sm" onclick="startFocus('${a.head.id}')">${ico('play',13)}Start it now</button></div></div>`);
+  // 2b. what your logged time says about your estimates
+  const pi = paceInsights()[0];
+  if (pi && p.usePace !== false) parts.push(`<div class="card"><div class="sub" style="font-weight:900;text-transform:uppercase">Your pace</div><div style="margin-top:4px">${esc(V(pi.type))} tasks take you about <b>${pi.r.toFixed(1)}x</b> ${pi.r > 1 ? 'longer' : 'less time'} than you plan.</div><div class="sub" style="margin-top:4px">Based on ${pi.n} you finished. Plans now use your real pace.</div></div>`);
+  // 3. gentle recovery
+  const lr = p.lastReset && (Date.now() - p.lastReset.at < 864e5) ? p.lastReset : null;
+  if (od.length >= 2) parts.push(`<div class="card"><div class="sub" style="font-weight:900;text-transform:uppercase">A few things slipped</div><div style="margin-top:4px">${od.length} tasks are overdue. That happens. Spread them over the next few days in one tap.</div><div style="margin-top:10px"><button class="btn sm p" onclick="openReset()">Give me a fresh start</button></div></div>`);
+  else if (lr) parts.push(`<div class="card"><div class="row between"><span class="sub">Tasks were moved to new days.</span><button class="btn sm" onclick="undoReset()">Undo</button></div></div>`);
+  // 4. weekly review nudge (Friday afternoon through Monday morning, once per week)
+  const d = new Date(), dow = d.getDay(), hr = d.getHours(), wk = weekRange()[0];
+  const reviewTime = (dow === 5 && hr >= 15) || dow === 6 || dow === 0 || (dow === 1 && hr < 12);
+  if (reviewTime && p.lastReview !== weekRange()[0] && (p.completedTotal || p.tasks.length)) parts.push(`<div class="card"><div class="row between"><div><b>Your week in review</b><div class="sub">30 seconds to see what got done and what's next.</div></div><button class="btn sm p" onclick="openReview()">Open</button></div></div>`);
+  box.innerHTML = parts.join('');
+}
+function renderLoadWeek() {
+  const box = $('loadWeek'); if (!box) return;
+  if (!DB.profiles[DB.current] || !P().tasks.length) { box.innerHTML = ''; return; }
+  const cap = capacity(), days = loadByDay(7), max = Math.max(cap * 1.4, ...days.map(x => x.mins));
+  box.innerHTML = `<div class="card"><div class="row between"><h3 class="hd">${ico('chart',18)}Next 7 days</h3><span class="sub">usual time: ${fmtMins(cap)} a day</span></div>
+    <div style="display:flex;gap:8px;align-items:flex-end;height:110px;margin-top:14px;position:relative">
+      <div style="position:absolute;left:0;right:0;bottom:${(cap / max * 100).toFixed(1)}%;border-top:1px dashed var(--mute);opacity:.6"></div>
+      ${days.map(x => { const hgt = Math.max(3, x.mins / max * 100), over = x.mins > cap; return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;height:100%"><div title="${fmtMins(x.mins)}" style="height:${hgt.toFixed(1)}%;border-radius:8px 8px 4px 4px;background:${over ? 'var(--bad)' : 'var(--acc)'};opacity:${x.mins ? 1 : .25}"></div></div>`; }).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:6px">${days.map(x => `<div style="flex:1;text-align:center;font-size:11px;font-weight:800;color:var(--mute)">${x.date === todayStr() ? 'Today' : parseYmd(x.date).toLocaleDateString('en-US', {weekday:'short'})}<br>${x.mins ? fmtMins(x.mins) : '-'}</div>`).join('')}</div></div>`;
+}
+
+/* ---------- Look and feel, vocabulary, first-run welcome ---------- */
+function applyUi() { document.body.dataset.ui = curUi(); }
+function applyVocab() {
+  document.querySelectorAll('[data-v]').forEach(e => { let t = V(e.dataset.v); if (e.hasAttribute('data-lc')) t = t.toLowerCase(); e.textContent = (e.dataset.pre || '') + t; });
+  const sel = $('tType'); if (sel) [...sel.options].forEach(o => { o.textContent = V(o.value); });
+}
+function fillSelects() {
+  const lv = Object.entries(LEVELS).map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
+  ['pLevel', 'wLevel'].forEach(id => { const s = $(id); if (s && !s.options.length) { s.innerHTML = lv; s.value = 'college'; } });
+  const ui = Object.entries(UIS).map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
+  const s1 = $('setUi'); if (s1 && !s1.options.length) s1.innerHTML = `<option value="">Match their level</option>` + ui;
+  const s2 = $('pUi'); if (s2 && !s2.options.length) s2.innerHTML = `<option value="">Match their level</option>` + ui;
+  const s3 = $('setCap'); if (s3 && !s3.options.length) s3.innerHTML = `<option value="0">Automatic (by level)</option>` + [30,60,90,120,180,240,300,360].map(m => `<option value="${m}">${fmtMins(m)} a day</option>`).join('');
+}
+function setUiMode(v) {
+  const p = P(); if (!DB.profiles[DB.current]) return;
+  p.ui = v; p.metaAt = Date.now();
+  const eff = uiOf(DB.current); if (eff === 'kid') p.vibe = 'playful'; else if (eff === 'pro') p.vibe = 'calm';
+  save(); buildChrome(); renderAll();
+}
+function makePerson(name, level, sample, ui) {
+  const nk = 'p_' + uid(), p = seed(level, name, sample); p.metaAt = Date.now(); p.lastBrief = todayStr(); if (ui) p.ui = ui;
+  DB.profiles[nk] = p; DB.current = nk; GHOST = null; pauseTimer(); return nk;
+}
+// Show the welcome sheet when nobody has been added yet (never while still waiting for the cloud copy).
+function ensureOnboard() {
+  const sh = $('welcomeSheet'); if (!sh) return;
+  const cfg = window.ORVI_CONFIG || {}, cloudOn = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) && !DB.localOnly;
+  const waiting = cloudOn && !(window.Cloud && Cloud.user && Cloud.state !== 'syncing');
+  const need = activeKeys().length === 0 && !waiting;
+  if (need && !sh.classList.contains('open')) {
+    GHOST = null; fillSelects();
+    const gone = Object.keys(DB.profiles).filter(k => DB.profiles[k].archived);
+    $('wRestore').innerHTML = gone.length ? `<div class="sub" style="font-weight:800">Or bring someone back</div>` + gone.map(k => `<div class="quest row between"><span><b>${esc(personName(k))}</b> <span class="sub">${esc(LEVELS[levelOf(k)])}</span></span><button class="btn sm" onclick="restorePerson('${k}')">Restore</button></div>`).join('') : '';
+    sh.classList.add('open');
+  } else if (!need && sh.classList.contains('open')) sh.classList.remove('open');
+}
+function createFirst(e) {
+  e.preventDefault();
+  const name = $('wName').value.trim().slice(0, 24); if (!name) return toast('Please enter a name.');
+  makePerson(name, $('wLevel').value, $('wSample').checked);
+  $('wName').value = ''; $('wSample').checked = false;
+  save(); $('welcomeSheet').classList.remove('open'); buildChrome(); renderAll(); go('home'); toast(`Welcome, ${name}!`);
+}
 
 /* ---------- People (named profiles) ---------- */
 function renderWho() {
@@ -849,19 +1517,18 @@ function openPerson(key) {
   $('pTitle').textContent = editing ? 'Edit person' : 'Add a person';
   $('pKey').value = editing ? key : '';
   $('pName').value = editing ? (DB.profiles[key].name || '') : '';
-  $('pLevel').value = editing ? levelOf(key) : 'college';
+  fillSelects(); $('pLevel').value = editing ? levelOf(key) : 'college'; $('pUi').value = editing ? (DB.profiles[key].ui || '') : '';
   $('pSample').checked = false; $('pSampleRow').style.display = editing ? 'none' : '';
   $('pRemove').style.display = editing ? '' : 'none';
   openSheet('personSheet'); setTimeout(() => { try { $('pName').focus(); } catch (e) {} }, 50);
 }
 function savePerson(e) {
   e.preventDefault();
-  const name = $('pName').value.trim().slice(0, 24), level = $('pLevel').value, key = $('pKey').value;
+  const name = $('pName').value.trim().slice(0, 24), level = $('pLevel').value, ui = $('pUi').value, key = $('pKey').value;
   if (!name) return toast('Please enter a name.');
-  if (key && DB.profiles[key]) { const p = DB.profiles[key]; p.name = name; p.level = level; p.metaAt = Date.now(); toast('Saved.'); }
+  if (key && DB.profiles[key]) { const p = DB.profiles[key]; p.name = name; p.level = level; p.ui = ui; p.metaAt = Date.now(); toast('Saved.'); }
   else {
-    const nk = 'p_' + uid(); DB.profiles[nk] = seed(level, name, $('pSample').checked); DB.profiles[nk].metaAt = Date.now();
-    DB.current = nk; pauseTimer(); toast(`Added ${name}.`);
+    makePerson(name, level, $('pSample').checked, ui); toast(`Added ${name}.`);
   }
   save(); closeSheet('personSheet'); buildChrome(); renderAll();
 }

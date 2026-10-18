@@ -8,7 +8,7 @@
    VAPID_PUBLIC_KEY  the public half of the push key pair (README Part 9). Never paste the private key.
 */
 window.ORVI_CONFIG = {
-  SUPABASE_URL: 'https://ewnrzhxdtsxcoxjjbdfb.supabase.co',
-  SUPABASE_ANON_KEY: 'sb_publishable_8CMSTWXuXdsJ_b7Lsvqtpw_nzmL0mne',
+  SUPABASE_URL: '',
+  SUPABASE_ANON_KEY: '',
   VAPID_PUBLIC_KEY: ''     // for phone notifications (README Part 9). The PUBLIC key only.
 };

@@ -19,8 +19,16 @@ export function addDays(d, n) { const x = new Date(d + 'T12:00:00Z'); x.setUTCDa
 
 // Which briefings (morning / evening) should go out right now for this account?
 // `prefix` picks the channel's bookkeeping column: '' = email (last_morning), 'push_' = push (last_push_morning).
+// Quiet hours: true when `minutes` (minutes since midnight) falls inside start..end, which may wrap past midnight (22:00 to 07:00).
+export function inQuiet(minutes, start, end) {
+  if (!start || !end) return false;
+  const a = toMin(start), b = toMin(end); if (a === b) return false;
+  return a < b ? (minutes >= a && minutes < b) : (minutes >= a || minutes < b);
+}
+
 export function dueSlots(s, now, prefix = '') {
   const tz = validTz(s.tz) ? s.tz : 'UTC', lp = localParts(now, tz), out = [];
+  if (prefix === 'push_' && inQuiet(lp.minutes, s.quiet_start, s.quiet_end)) return out;   // quiet hours silence phone notifications only
   for (const slot of ['morning', 'evening']) {
     const at = toMin(s[slot]);
     if (lp.minutes >= at && lp.minutes < at + WINDOW_MIN && s['last_' + prefix + slot] !== lp.date) out.push({ slot, key: prefix + slot, date: lp.date, tz });
@@ -36,8 +44,12 @@ function streak(days, today) {
 
 export function personName(p) { return (p && p.name) || LEVELS[p && p.level] || 'Student'; }
 
+const CAPACITY = { elementary: 60, middleschool: 90, highschool: 150, college: 240, grad: 300, professional: 300 };
+
 function summarize(p, date) {
   const tasks = p.tasks || [], pend = tasks.filter(t => t.status !== 'completed');
+  const late = pend.filter(t => t.dueDate < date), cap = p.capacity || CAPACITY[p.level] || 150;
+  const tomMins = pend.filter(t => t.dueDate === addDays(date, 1)).reduce((a, t) => a + (t.duration || 30), 0);
   const course = id => ((p.courses || []).find(c => c.id === id) || {}).name || '';
   const row = t => ({ title: t.title, course: course(t.courseId), mins: t.duration || 0, late: t.dueDate < date });
   const byDue = (a, b) => (a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : 0);
@@ -50,6 +62,8 @@ function summarize(p, date) {
     done: tasks.filter(t => t.completedAt === date).length,
     focus: (p.focusLog || []).filter(f => f.date === date).reduce((a, f) => a + (f.mins || 0), 0),
     streak: streak(p.activeDays, date),
+    behind: late.length >= 3 || late.some(t => Math.round((new Date(date + 'T12:00:00Z') - new Date(t.dueDate + 'T12:00:00Z')) / 864e5) >= 3) ? late.length : 0,
+    heavyTomorrow: tomMins > cap ? tomMins : 0,
   };
 }
 
@@ -57,7 +71,7 @@ const fmtMins = m => m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ' ' + (m % 60) 
 const line = r => `${r.title}${r.course ? ' (' + r.course + ')' : ''}${r.mins ? ' · ' + fmtMins(r.mins) : ''}${r.late ? ' · overdue' : ''}`;
 
 // Build one email covering every active person on the account.
-export function buildEmail({ slot, people, date, appUrl, unsubUrl, force }) {
+export function buildEmail({ slot, people, date, appUrl, unsubUrl, force, behind = true }) {
   const morning = slot === 'morning', sums = people.map(p => summarize(p, date));
   const has = sums.some(s => morning ? (s.due.length || s.tomorrow.length || s.exams.length) : (s.due.length || s.tomorrow.length || s.done || s.focus));
   const multi = sums.length > 1;
@@ -69,7 +83,9 @@ export function buildEmail({ slot, people, date, appUrl, unsubUrl, force }) {
       blocks.push(['Today', [`${s.done} task${s.done === 1 ? '' : 's'} finished · ${s.focus}m focus` + (s.streak ? ` · ${s.streak}-day streak` : '')]]);
       if (s.due.length) blocks.push(['Still open', s.due.map(line)]);
     }
+    if (behind && s.behind) blocks.unshift(['Heads up', [`${s.behind} task${s.behind === 1 ? ' is' : 's are'} overdue. Open Orvi and tap "Give me a fresh start" to spread them out.`]]);
     if (s.tomorrow.length) blocks.push(['Tomorrow', s.tomorrow.map(line)]);
+    if (behind && s.heavyTomorrow) blocks.push(['Tomorrow looks heavy', [`${fmtMins(s.heavyTomorrow)} is due, more than your usual. A head start today will help.`]]);
     if (morning && s.exams.length) blocks.push(['Exams this week', s.exams.map(e => `${e.title} · ${e.inDays === 0 ? 'today' : e.inDays === 1 ? 'tomorrow' : 'in ' + e.inDays + ' days'}`)]);
     if (morning && s.streak) blocks.push(['Streak', [`${s.streak} day${s.streak === 1 ? '' : 's'}. Keep it going.`]]);
     return { name: s.name, blocks };
@@ -89,14 +105,16 @@ ${appUrl ? `<p style="margin:22px 0 0"><a href="${esc(appUrl)}" style="backgroun
 }
 
 // Short text for a phone notification.
-export function buildPush({ slot, people, date, appUrl, force }) {
+export function buildPush({ slot, people, date, appUrl, force, behind = true }) {
   const morning = slot === 'morning', sums = people.map(p => summarize(p, date)), multi = sums.length > 1;
   const parts = sums.map(s => {
     const n = s.due.length;
     const txt = morning
       ? (n ? `${n} to do today (${s.due.slice(0, 2).map(r => r.title).join(', ')}${n > 2 ? '…' : ''})` : (s.tomorrow.length ? `nothing due, ${s.tomorrow.length} tomorrow` : ''))
       : (s.done || s.focus ? `${s.done} finished · ${s.focus}m focus` : '') + (n ? `${s.done || s.focus ? ' · ' : ''}${n} still open` : '');
-    return txt ? (multi ? `${s.name}: ${txt}` : txt) : '';
+    const warn = behind && s.behind ? `${s.behind} overdue. Try a fresh start.` : (behind && s.heavyTomorrow ? `Tomorrow looks heavy (${fmtMins(s.heavyTomorrow)}).` : '');
+    const all = [warn, txt].filter(Boolean).join(' · ');
+    return all ? (multi ? `${s.name}: ${all}` : all) : '';
   }).filter(Boolean);
   const body = parts.join('\n') || 'Nothing due. Enjoy the free time.';
   return { title: morning ? 'Orvi · Morning briefing' : 'Orvi · Evening check-in', body, url: appUrl || './', tag: 'orvi-' + slot, hasContent: !!(parts.length || force) };
@@ -130,12 +148,12 @@ export async function runBriefings(deps, now = new Date()) {
           const people = (await deps.getProfiles(s.owner_id)).filter(p => p && !p.archived);
           if (ch.kind === 'email') {
             const to = await deps.getEmail(s.owner_id);
-            const mail = buildEmail({ slot: d.slot, people, date: d.date, appUrl: deps.appUrl, unsubUrl: await deps.unsubUrl(s.owner_id) });
+            const mail = buildEmail({ slot: d.slot, people, date: d.date, appUrl: deps.appUrl, unsubUrl: await deps.unsubUrl(s.owner_id), behind: s.behind_alerts !== false });
             if (!to || !mail.hasContent) { res.skipped++; continue; }
             await deps.send({ to, owner: s.owner_id, ...mail });
             res.sent++;
           } else {
-            const msg = buildPush({ slot: d.slot, people, date: d.date, appUrl: deps.appUrl });
+            const msg = buildPush({ slot: d.slot, people, date: d.date, appUrl: deps.appUrl, behind: s.behind_alerts !== false });
             const subs = await deps.getSubs(s.owner_id);
             if (!subs.length || !msg.hasContent) { res.skipped++; continue; }
             let okN = 0, lastErr = null;
